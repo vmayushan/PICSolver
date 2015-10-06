@@ -51,19 +51,25 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Abstract\IFieldSolver.cs" />
+    <Compile Include="Abstract\IParticle.cs" />
+    <Compile Include="Abstract\IParticleMover.cs" />
+    <Compile Include="Abstract\IParticleStorage.cs" />
     <Compile Include="Derivative\MatrixGradient.cs" />
     <Compile Include="Derivative\ScalarDerivative.cs" />
+    <Compile Include="Domain\Constants.cs" />
+    <Compile Include="Domain\Particle.cs" />
+    <Compile Include="Domain\ParticleArrayStorage.cs" />
     <Compile Include="Extensions\MatrixExtensions.cs" />
+    <Compile Include="Mover\Leapfrog.cs" />
     <Compile Include="Poisson\BoundaryConditions.cs" />
-    <Compile Include="Poisson\RectanglePoisson.cs" />
+    <Compile Include="Poisson\RectangleFDMPoissonSolver.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Domain\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\MathNet.Numerics.MKL.Win-x64.2.0.0\build\MathNet.Numerics.MKL.Win-x64.targets" Condition="Exists('..\packages\MathNet.Numerics.MKL.Win-x64.2.0.0\build\MathNet.Numerics.MKL.Win-x64.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

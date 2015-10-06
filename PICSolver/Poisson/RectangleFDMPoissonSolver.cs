@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace PICSolver.Poisson
 {
-    public class RectanglePoisson
+    public class RectangleFDMPoissonSolver
     {
         private BoundaryConditions boundary;
         private int n;
@@ -23,7 +23,7 @@ namespace PICSolver.Poisson
         private IIterativeSolver<double> solver;
         private IPreconditioner<double> preconditioner;
 
-        public RectanglePoisson(double left, double right, int n, double bottom, double top, int m, BoundaryConditions boundary)
+        public RectangleFDMPoissonSolver(double left, double right, int n, double bottom, double top, int m, BoundaryConditions boundary)
         {
             this.boundary = boundary;
             this.n = n;
@@ -36,10 +36,6 @@ namespace PICSolver.Poisson
         }
         private void InitializeSolver()
         {
-            // - DivergenceStopCriterion: monitors an iterative calculation for signs of divergence;
-            // - FailureStopCriterion: monitors residuals for NaN's;
-            // - IterationCountStopCriterion: monitors the numbers of iteration steps;
-            // - ResidualStopCriterion: monitors residuals if calculation is considered converged;
             var iterationCountStopCriterion = new IterationCountStopCriterion<double>(1000);
             var residualStopCriterion = new ResidualStopCriterion<double>(1e-10);
             monitor = new Iterator<double>(iterationCountStopCriterion, residualStopCriterion);

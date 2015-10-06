@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("PICSolver")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Particle-in-Cell Solver")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("PICSolver")]

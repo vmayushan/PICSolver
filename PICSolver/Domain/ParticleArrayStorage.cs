@@ -1,0 +1,156 @@
+﻿namespace PICSolver.Domain
+{
+    using Abstract;
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
+
+    public class ParticleArrayStorage<T> : IParticleStorage<T> where T : IParticle
+    {
+        /// <summary>
+        /// Particle data storage.
+        /// </summary>
+        private double[] _data;
+
+        /// <summary>
+        /// List with deleted particles indexes.
+        /// </summary>
+        private IList<int> _deleted;
+
+        /// <summary>
+        /// Number of items.
+        /// </summary>
+        private int _count;
+
+        /// <summary>
+        /// Number of data columns.
+        /// </summary>
+        private int _width;
+
+        /// <summary>
+        /// Total number of elements the internal data structure can hold without resizing.
+        /// </summary>
+        private int _capacity;
+
+        /// <summary>
+        /// Gets the number of elements contained in the <see cref="ParticleArrayStorage"/>.
+        /// </summary>
+        public int Count { get { return _count - _deleted.Count; } }
+
+        /// <summary>
+        /// Gets the total number of elements the internal data structure can hold without resizing.
+        /// </summary>
+        public int Capacity { get { return _capacity; } }
+
+        /// <summary>
+        /// Initializes a new instance of the ParticleArrayStorage class that is empty and has the specified initial capacity.
+        /// </summary>
+        /// <param name="capacity">The number of elements that <see cref="ParticleArrayStorage"/> can store.</param>
+        public ParticleArrayStorage(int capacity)
+        {
+            _width = 5;
+            _capacity = capacity;
+            _data = new double[_width * capacity];
+            _deleted = new List<int>(capacity);
+        }
+
+        /// <summary>
+        /// Adds a new item into <see cref="ParticleArrayStorage"/>
+        /// </summary>
+        /// <param name="particle">The value to add.</param>
+        public void Add(T particle)
+        {
+            if (_deleted.Count > 0)
+            {
+                var last = _deleted[_deleted.Count - 1];
+                At(last, particle);
+                _deleted.RemoveAt(_deleted.Count - 1);
+            }
+            else
+            {
+                At(_count, particle);
+                _count++;
+            }
+        }
+
+        /// <summary>
+        /// Removes item at the specified index.
+        /// </summary>
+        /// <param name="index">The index of the element.</param>
+        public void RemoveAt(int index)
+        {
+            if (index >= _capacity) throw new ArgumentOutOfRangeException("index");
+            _data[_width * index] = int.MinValue;
+            _deleted.Add(index);
+        }
+
+        /// <summary>
+        /// Get the value of the given element at the specified index without range checking.
+        /// </summary>
+        /// <param name="index">The index of the element.</param>
+        /// <returns>The requested element.</returns>
+        public T At(int index)
+        {
+            var particle = default(T);
+            particle.X = _data[_width * index];
+            particle.Y = _data[_width * index + 1];
+            particle.Px = _data[_width * index + 2];
+            particle.Py = _data[_width * index + 3];
+            particle.Q = _data[_width * index + 4];
+            return particle;
+        }
+
+        /// <summary>
+        ///  Sets the value of the given element without range checking.
+        /// </summary>
+        /// <param name="index">The index of the element.</param>
+        /// <param name="particle">The value to set the element to.</param>
+        public void At(int index, T particle)
+        {
+            _data[_width * index] = particle.X;
+            _data[_width * index + 1] = particle.Y;
+            _data[_width * index + 2] = particle.Px;
+            _data[_width * index + 3] = particle.Py;
+            _data[_width * index + 4] = particle.Q;
+        }
+
+        /// <summary>
+        /// Gets of sets the value of the given element at the specified index with range checking.
+        /// </summary>
+        /// <param name="i">The index of the element.</param>
+        /// <returns></returns>
+        public T this[int i]
+        {
+            get
+            {
+                if (i >= _count) throw new ArgumentOutOfRangeException("i");
+                return At(i);
+            }
+            set
+            {
+                if (i >= _count) throw new ArgumentOutOfRangeException("i");
+                At(i, value);
+            }
+        }
+        /// <summary>
+        /// Returns an IEnumerable that can be used to iterate through all values of the storage.
+        /// </summary>
+        public IEnumerator<T> GetEnumerator()
+        {
+            for (int i = 0; i < _count; i++)
+            {
+                var particle = At(i);
+                if (particle.X == int.MinValue) continue;
+                yield return particle;
+            }
+        }
+
+        /// <summary>
+        /// Returns an IEnumerable that can be used to iterate through all values of the storage.
+        /// </summary>
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+    }
+}
