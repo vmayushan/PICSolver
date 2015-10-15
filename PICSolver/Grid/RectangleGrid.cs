@@ -29,6 +29,14 @@ namespace PICSolver.Grid
 
         public double Hy { get { return _hy; } }
 
+        public int Nx { get { return _n; } }
+
+        public int Ny { get { return _m; } }
+
+        public double[] GridX { get { return _gridx; } }
+
+        public double[] GridY { get { return _gridy; } }
+
         public int GetTopIndex(int cell)
         {
             return _up[cell];
@@ -48,7 +56,17 @@ namespace PICSolver.Grid
         {
             _rho[cell] += density;
         }
+        public double GetDensity(int cell)
+        {
+            return _rho[cell];
+        }
 
+        public int FindCell(double x, double y)
+        {
+            for (int i = _cells - 1; i >= 0; i--)
+                if (x > _x[i] && y > _y[i]) return i;
+            throw new ApplicationException();
+        }
 
         public void InitializeGrid(int n, int m, double left, double right, double bottom, double top)
         {
@@ -71,7 +89,7 @@ namespace PICSolver.Grid
                 for (int j = 0; j < _m; j++)
                 {
                     _x[j * _n + i] = _gridx[i];
-                    _y[i * _m + j] = _gridy[j];
+                    _y[i * _m + j] = _gridy[i];
                 }
             }
 
@@ -81,7 +99,7 @@ namespace PICSolver.Grid
             }
 
             _hx = _x[1] - _x[0];
-            _hy = _y[1] - _y[0];
+            _hy = _y[_m] - _y[0];
 
             _rho = new double[_cells];
             _Ex = new double[_cells];

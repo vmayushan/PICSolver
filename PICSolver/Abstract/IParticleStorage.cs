@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace PICSolver.Abstract
 {
-    interface IParticleStorage<T> : IEnumerable<T> where T : IParticle
+    public interface IParticleStorage<T> : IEnumerable<T> where T : IParticle
     {
         int Count { get; }
         int Capacity { get; }
@@ -17,7 +17,7 @@ namespace PICSolver.Abstract
         void At(int index, T particle);
         T this[int index] { get; set; }
         void ResetForces();
-        void AddForceToParticle(int index, double forceX, double forceY);
+        void AddForce(int index, double forceX, double forceY);
         void SetCell(int index, int cell);
         int GetCell(int index);
     }

@@ -2,6 +2,7 @@
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double.Solvers;
 using MathNet.Numerics.LinearAlgebra.Solvers;
+using PICSolver.Abstract;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,6 +35,19 @@ namespace PICSolver.Poisson
             dy = y[1] - y[0];
             InitializeSolver();
         }
+
+        public RectangleFDMPoissonSolver(IRectangleGrid grid, BoundaryConditions boundary)
+        {
+            this.boundary = boundary;
+            this.n = grid.Nx;
+            this.m = grid.Ny;
+            x = grid.GridX;
+            y = grid.GridY;
+            dx = grid.Hx;
+            dy = grid.Hy;
+            InitializeSolver();
+        }
+
         private void InitializeSolver()
         {
             var iterationCountStopCriterion = new IterationCountStopCriterion<double>(1000);
@@ -112,10 +126,9 @@ namespace PICSolver.Poisson
             }
             return matrix;
         }
-        public Vector<double> BuildVector(Func<double, double, double> f)
-        {
-            var vector = Vector<double>.Build.Dense(n * m);
 
+        private void VectorBoundaries(Vector<double> vector)
+        {
             for (int j = 0; j < m; j++)
             {
                 vector[j] = boundary.Left.Value(y[j]);
@@ -127,11 +140,31 @@ namespace PICSolver.Poisson
                 vector[m * i] = boundary.Bottom.Value(x[i]);
                 vector[m * i + m - 1] = boundary.Top.Value(x[i]);
             }
+        }
+        public Vector<double> BuildVector(Func<double, double, double> f)
+        {
+            var vector = Vector<double>.Build.Dense(n * m);
+            this.VectorBoundaries(vector);
+
             for (int i = 1; i < n - 1; i++)
             {
                 for (int j = 1; j < m - 1; j++)
                 {
                     vector[m * i + j] = f(x[i], y[j]);
+                }
+            }
+            return vector;
+        }
+        public Vector<double> BuildVector(IRectangleGrid grid)
+        {
+            var vector = Vector<double>.Build.Dense(n * m);
+            this.VectorBoundaries(vector);
+
+            for (int i = 1; i < n - 1; i++)
+            {
+                for (int j = 1; j < m - 1; j++)
+                {
+                    vector[m * i + j] = grid.GetDensity(m * i + j);
                 }
             }
             return vector;

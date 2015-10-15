@@ -9,9 +9,8 @@ namespace PICSolver.Domain
 {
     public struct Particle : IParticle
     {
-        public Particle(int id, double x, double y, double px, double py, double q) : this()
+        public Particle(double x, double y, double px, double py, double q) : this()
         {
-            this.Id = id;
             this.X = x;
             this.Y = y;
             this.Px = px;

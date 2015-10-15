@@ -5,7 +5,7 @@
     using System.Collections;
     using System.Collections.Generic;
 
-    public class ParticleArrayStorage<T> : IParticleStorage<T> where T : IParticle
+    public class ParticleArrayStorage<T> : IParticleStorage<T> where T : IParticle, new()
     {
         /// <summary>
         /// Particle data storage.
@@ -98,7 +98,7 @@
         /// <param name="index">The index of the element.</param>
         /// <param name="forceX">Force on particle.</param>
         /// <param name="forceY">Force on particle.</param>
-        public void AddForceToParticle(int index, double forceX, double forceY)
+        public void AddForce(int index, double forceX, double forceY)
         {
             _data[_width * index + 5] += forceX;
             _data[_width * index + 6] += forceY;
@@ -133,6 +133,7 @@
         public T At(int index)
         {
             var particle = default(T);
+            particle = new T();
             particle.Id = index;
             particle.X = _data[_width * index];
             particle.Y = _data[_width * index + 1];
