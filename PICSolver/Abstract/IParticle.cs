@@ -8,6 +8,7 @@ namespace PICSolver.Abstract
 {
     public interface IParticle
     {
+        int Id { get; set; }
         double X { get; set; }
         double Y { get; set; }
         double Px { get; set; }

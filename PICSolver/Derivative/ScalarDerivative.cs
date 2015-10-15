@@ -14,8 +14,9 @@ namespace PICSolver.Derivative
         {
             if (y == null || y.Length < 3 || i < 0 || i > y.Length - 3 || h == 0)
                 throw new ArgumentException();
-            return (y[i + 1] - y[i]) / h;
+            
             return (-3 * y[i] + 4 * y[i + 1] - y[i + 2]) / 2 / h;
+            return (y[i + 1] - y[i]) / h;
         }
 
         private double Central(double[] y, int i, double h)
@@ -28,8 +29,9 @@ namespace PICSolver.Derivative
         {
             if (y == null || y.Length < 3 || i < 0 || i < 2 || h == 0)
                 throw new ArgumentException();
-            return (y[i] - y[i - 1]) / h;
+            
             return (3 * y[i] - 4 * y[i - 1] + y[i - 2]) / 2 / h;
+            return (y[i] - y[i - 1]) / h;
         }
         public double Evaluate(double[] y, int i, double h, DerivativeType type)
         {

@@ -9,14 +9,16 @@ namespace PICSolver.Domain
 {
     public struct Particle : IParticle
     {
-        public Particle(double x, double y, double px, double py, double q) : this()
+        public Particle(int id, double x, double y, double px, double py, double q) : this()
         {
+            this.Id = id;
             this.X = x;
             this.Y = y;
             this.Px = px;
             this.Py = py;
             this.Q = q;
         }
+        public int Id { get; set; }
         public double X { get; set; }
         public double Y { get; set; }
         public double Px { get; set; }

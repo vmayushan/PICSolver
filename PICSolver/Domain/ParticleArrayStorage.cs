@@ -9,8 +9,14 @@
     {
         /// <summary>
         /// Particle data storage.
+        /// x y px py q fx fy
         /// </summary>
         private double[] _data;
+
+        /// <summary>
+        /// Particle cell id.
+        /// </summary>
+        private int[] _cell;
 
         /// <summary>
         /// List with deleted particles indexes.
@@ -48,9 +54,10 @@
         /// <param name="capacity">The number of elements that <see cref="ParticleArrayStorage"/> can store.</param>
         public ParticleArrayStorage(int capacity)
         {
-            _width = 5;
+            _width = 7;
             _capacity = capacity;
             _data = new double[_width * capacity];
+            _cell = new int[_capacity];
             _deleted = new List<int>(capacity);
         }
 
@@ -74,6 +81,40 @@
         }
 
         /// <summary>
+        /// Reset forces on particles.
+        /// </summary>
+        public void ResetForces()
+        {
+            for (int i = 0; i < _capacity; i++)
+            {
+                _data[_width * i + 5] = 0;
+                _data[_width * i + 6] = 0;
+            }
+        }
+
+        /// <summary>
+        /// Add force to particle.
+        /// </summary>
+        /// <param name="index">The index of the element.</param>
+        /// <param name="forceX">Force on particle.</param>
+        /// <param name="forceY">Force on particle.</param>
+        public void AddForceToParticle(int index, double forceX, double forceY)
+        {
+            _data[_width * index + 5] += forceX;
+            _data[_width * index + 6] += forceY;
+        }
+
+        public void SetCell(int index, int cell)
+        {
+            _cell[index] = cell;
+        }
+
+        public int GetCell(int index)
+        {
+            return _cell[index];
+        }
+
+        /// <summary>
         /// Removes item at the specified index.
         /// </summary>
         /// <param name="index">The index of the element.</param>
@@ -92,6 +133,7 @@
         public T At(int index)
         {
             var particle = default(T);
+            particle.Id = index;
             particle.X = _data[_width * index];
             particle.Y = _data[_width * index + 1];
             particle.Px = _data[_width * index + 2];

@@ -16,5 +16,9 @@ namespace PICSolver.Abstract
         T At(int index);
         void At(int index, T particle);
         T this[int index] { get; set; }
+        void ResetForces();
+        void AddForceToParticle(int index, double forceX, double forceY);
+        void SetCell(int index, int cell);
+        int GetCell(int index);
     }
 }
