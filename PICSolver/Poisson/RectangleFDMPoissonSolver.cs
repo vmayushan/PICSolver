@@ -4,14 +4,10 @@ using MathNet.Numerics.LinearAlgebra.Double.Solvers;
 using MathNet.Numerics.LinearAlgebra.Solvers;
 using PICSolver.Abstract;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PICSolver.Poisson
 {
-    public class RectangleFDMPoissonSolver
+    public class RectangleFDMPoissonSolver : IFieldSolver
     {
         private BoundaryConditions boundary;
         private int n;
@@ -178,7 +174,10 @@ namespace PICSolver.Poisson
         public void Solve(Matrix<double> A, Vector<double> B, Matrix<double> result)
         {
             monitor.Reset();
+            var test = Vector<double>.Build.SparseOfArray(B.ToArray());
             var resultVector = A.SolveIterative(B, solver, monitor, preconditioner);
+
+
             for (int i = 0; i < n; i++)
             {
                 for (int j = 0; j < m; j++)

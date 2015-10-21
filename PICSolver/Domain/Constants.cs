@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PICSolver.Domain
 {
@@ -16,5 +12,9 @@ namespace PICSolver.Domain
         /// ElectronCharge / (ElectronMass * LightVelocity^2)
         /// </summary>
         public const double Alfa = -1.9569512693314196E-6;
+        public static double ChildLangmuirCurrent(double length, double uAnode)
+        {
+            return 2.33E-6 * (1 / (length * length)) * Math.Pow(uAnode, 1.5);
+        }
     }
 }

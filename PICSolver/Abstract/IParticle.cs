@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace PICSolver.Abstract
+﻿namespace PICSolver.Abstract
 {
     public interface IParticle
     {
@@ -14,5 +8,9 @@ namespace PICSolver.Abstract
         double Px { get; set; }
         double Py { get; set; }
         double Q { get; set; }
+        double BetaX { get; }
+        double BetaY { get; }
+        double Ex { get; set; }
+        double Ey { get; set; }
     }
 }

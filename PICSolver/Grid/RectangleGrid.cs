@@ -1,4 +1,6 @@
-﻿using PICSolver.Abstract;
+﻿using MathNet.Numerics.Data.Text;
+using MathNet.Numerics.LinearAlgebra;
+using PICSolver.Abstract;
 using System;
 
 namespace PICSolver.Grid
@@ -23,6 +25,11 @@ namespace PICSolver.Grid
         private double[] _gridx;
         private double[] _gridy;
 
+        private double _left;
+        private double _right;
+        private double _bottom;
+        private double _top;
+
         public double CellSquare { get { return _hx * _hy; } }
 
         public double Hx { get { return _hx; } }
@@ -36,6 +43,10 @@ namespace PICSolver.Grid
         public double[] GridX { get { return _gridx; } }
 
         public double[] GridY { get { return _gridy; } }
+
+        public double[] Ex { get { return _Ex; } set { _Ex = value; } }
+
+        public double[] Ey { get { return _Ey; } set { _Ey = value; } }
 
         public int GetTopIndex(int cell)
         {
@@ -64,8 +75,14 @@ namespace PICSolver.Grid
         public int FindCell(double x, double y)
         {
             for (int i = _cells - 1; i >= 0; i--)
-                if (x > _x[i] && y > _y[i]) return i;
+                if (x >= _x[i] && y >= _y[i]) return i;
             throw new ApplicationException();
+        }
+
+        public bool OutOfGrid(double x, double y)
+        {
+            if (x > _right || x < _left || y > _top || y < _bottom) return true;
+            return false;
         }
 
         public void InitializeGrid(int n, int m, double left, double right, double bottom, double top)
@@ -75,6 +92,10 @@ namespace PICSolver.Grid
 
             _n = n;
             _m = m;
+            _left = left;
+            _right = right;
+            _top = top;
+            _bottom = bottom;
             _cells = _n * _m;
 
             _gridx = LinearSpaced(_n, left, right);
@@ -135,5 +156,36 @@ namespace PICSolver.Grid
             data[data.Length - 1] = stop;
             return data;
         }
+        private void SaveStateToCsv(double[] stateVector, string filename)
+        {
+            Matrix<double> result = Matrix<double>.Build.Dense(_n, _m);
+            for (int i = 0; i < _n; i++)
+            {
+                for (int j = 0; j < _m; j++)
+                {
+                    result[i, j] = stateVector[_m * i + j];
+                }
+            }
+            DelimitedWriter.Write(filename, result, ";");
+        }
+        public void SaveDebugInfoToCSV()
+        {
+            SaveStateToCsv(_rho, "rho.csv");
+            SaveStateToCsv(_Ex, "ex.csv");
+            SaveStateToCsv(_Ey, "ey.csv");
+        }
+        public double[,] GetRho()
+        {
+            Matrix<double> result = Matrix<double>.Build.Dense(_n, _m);
+            for (int i = 0; i < _n; i++)
+            {
+                for (int j = 0; j < _m; j++)
+                {
+                    result[i, j] = _rho[_m * i + j];
+                }
+            }
+            return result.ToArray();
+        }
+
     }
 }

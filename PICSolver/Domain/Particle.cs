@@ -1,27 +1,27 @@
 ﻿using PICSolver.Abstract;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PICSolver.Domain
 {
     public struct Particle : IParticle
     {
-        public Particle(double x, double y, double px, double py, double q) : this()
+        public Particle(double x, double y, double px, double py, double ex, double ey, double q) : this()
         {
             this.X = x;
             this.Y = y;
             this.Px = px;
             this.Py = py;
             this.Q = q;
+            this.Ex = ex;
+            this.Ey = ey;
         }
         public int Id { get; set; }
         public double X { get; set; }
         public double Y { get; set; }
         public double Px { get; set; }
         public double Py { get; set; }
+        public double Ex { get; set; }
+        public double Ey { get; set; }
         public double Q { get; set; }
         public double BetaX { get { return Px / Math.Sqrt(1 + Px * Px); } }
         public double BetaY { get { return Py / Math.Sqrt(1 + Py * Py); } }

@@ -1,18 +1,13 @@
 ﻿using PICSolver.Abstract;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PICSolver.Domain
 {
-    public class CloudInCell2d
+    public class CloudInCell : IInterpolationScheme
     {
         private IParticleStorage<Particle> particles;
         private IRectangleGrid grid;
 
-        public CloudInCell2d(IParticleStorage<Particle> particles, IRectangleGrid grid)
+        public CloudInCell(IParticleStorage<Particle> particles, IRectangleGrid grid)
         {
             this.particles = particles;
             this.grid = grid;

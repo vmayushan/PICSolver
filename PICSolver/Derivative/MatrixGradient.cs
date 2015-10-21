@@ -68,5 +68,39 @@ namespace PICSolver.Derivative
                 }
             }
         }
+
+        public void EvaluateFlatten(Matrix<double> matrix, double[] dx, double[] dy, double hx = 1.0, double hy = 1.0)
+        {
+            if (matrix == null) throw new ArgumentException("null", "matrix");
+            if (hx == 0 || hy == 0) throw new ArgumentException();
+
+            //итерация по строкам
+            for (int i = 0; i < matrix.RowCount; i++)
+            {
+                //получаем i-ую строку
+                var row = matrix.Row(i).ToArray();
+
+                //итерация по [i,j] элементам i-ой строки
+                for (int j = 0; j < matrix.ColumnCount; j++)
+                {
+                    DerivativeType dtype = (j == 0) ? DerivativeType.Forward : (j == matrix.ColumnCount - 1) ? DerivativeType.Backward : DerivativeType.Central;
+                    dx[i * matrix.ColumnCount + j] = this.ScalarDerivative.Evaluate(row, j, hx, dtype);
+                }
+            }
+
+            //итерация по столбцам
+            for (int j = 0; j < matrix.ColumnCount; j++)
+            {
+                //получаем j-ый столбец
+                var column = matrix.Column(j).ToArray();
+
+                //итерация по [i,j] элементам j-го столбца
+                for (int i = 0; i < matrix.RowCount; i++)
+                {
+                    DerivativeType dtype = (i == 0) ? DerivativeType.Forward : (i == matrix.RowCount - 1) ? DerivativeType.Backward : DerivativeType.Central;
+                    dy[i * matrix.ColumnCount + j] = this.ScalarDerivative.Evaluate(column, i, hy, dtype);
+                }
+            }
+        }
     }
 }

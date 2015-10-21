@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace PICSolver.Abstract
+﻿namespace PICSolver.Abstract
 {
     public interface IRectangleGrid
     {
         double CellSquare { get; }
+        double[] Ex { get; set; }
+        double[] Ey { get; set; }
         double Hx { get; }
         double Hy { get; }
         double[] GridX { get; }
@@ -23,5 +19,9 @@ namespace PICSolver.Abstract
         int GetTopIndex(int cell);
         double InterpolateWeight(double x, double y, int cellId);
         int FindCell(double x, double y);
+        void InitializeGrid(int n, int m, double left, double right, double bottom, double top);
+        bool OutOfGrid(double x, double y);
+        void SaveDebugInfoToCSV();
+        double[,] GetRho();
     }
 }

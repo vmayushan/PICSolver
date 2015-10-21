@@ -1,4 +1,4 @@
-﻿namespace PICSolver.Domain
+﻿namespace PICSolver.Storage
 {
     using Abstract;
     using System;
@@ -65,18 +65,20 @@
         /// Adds a new item into <see cref="ParticleArrayStorage"/>
         /// </summary>
         /// <param name="particle">The value to add.</param>
-        public void Add(T particle)
+        public int Add(T particle)
         {
             if (_deleted.Count > 0)
             {
                 var last = _deleted[_deleted.Count - 1];
                 At(last, particle);
                 _deleted.RemoveAt(_deleted.Count - 1);
+                return last;
             }
             else
             {
                 At(_count, particle);
                 _count++;
+                return _count - 1;
             }
         }
 
@@ -102,6 +104,16 @@
         {
             _data[_width * index + 5] += forceX;
             _data[_width * index + 6] += forceY;
+        }
+
+        public double GetForceX(int index)
+        {
+            return _data[_width * index + 5];
+        }
+
+        public double GetForceY(int index)
+        {
+            return _data[_width * index + 6];
         }
 
         public void SetCell(int index, int cell)
@@ -140,6 +152,8 @@
             particle.Px = _data[_width * index + 2];
             particle.Py = _data[_width * index + 3];
             particle.Q = _data[_width * index + 4];
+            particle.Ex = _data[_width * index + 5];
+            particle.Ey = _data[_width * index + 6];
             return particle;
         }
 
@@ -155,8 +169,16 @@
             _data[_width * index + 2] = particle.Px;
             _data[_width * index + 3] = particle.Py;
             _data[_width * index + 4] = particle.Q;
+            _data[_width * index + 5] = particle.Ex;
+            _data[_width * index + 6] = particle.Ey;
         }
-
+        public void Update(int index, double x, double y, double px, double py)
+        {
+            _data[_width * index] = x;
+            _data[_width * index + 1] = y;
+            _data[_width * index + 2] = px;
+            _data[_width * index + 3] = py;
+        }
         /// <summary>
         /// Gets of sets the value of the given element at the specified index with range checking.
         /// </summary>
@@ -185,6 +207,15 @@
                 var particle = At(i);
                 if (particle.X == int.MinValue) continue;
                 yield return particle;
+            }
+        }
+
+        public IEnumerable<int> EnumerateIndexes()
+        {
+            for (int i = 0; i < _count; i++)
+            {
+                if (_deleted.Contains(i)) continue;
+                yield return i;
             }
         }
 
