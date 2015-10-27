@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using PICSolver.Storage;
+using System.Collections.Generic;
 
 namespace PICSolver.Abstract
 {
@@ -12,11 +13,10 @@ namespace PICSolver.Abstract
         void At(int index, T particle);
         T this[int index] { get; set; }
         void ResetForces();
+        void SetParticleCell(int index, int cell);
+        int GetParticleCell(int index);
         void AddForce(int index, double forceX, double forceY);
-        void SetCell(int index, int cell);
-        int GetCell(int index);
-        double GetForceX(int index);
-        double GetForceY(int index);
+        double Get(ParticleField field, int index);
         void Update(int index, double x, double y, double px, double py);
         IEnumerable<int> EnumerateIndexes();
     }

@@ -106,22 +106,17 @@
             _data[_width * index + 6] += forceY;
         }
 
-        public double GetForceX(int index)
+        public double Get(ParticleField field, int index)
         {
-            return _data[_width * index + 5];
+            return _data[_width * index + (int)field];
         }
 
-        public double GetForceY(int index)
-        {
-            return _data[_width * index + 6];
-        }
-
-        public void SetCell(int index, int cell)
+        public void SetParticleCell(int index, int cell)
         {
             _cell[index] = cell;
         }
 
-        public int GetCell(int index)
+        public int GetParticleCell(int index)
         {
             return _cell[index];
         }
@@ -133,7 +128,7 @@
         public void RemoveAt(int index)
         {
             if (index >= _capacity) throw new ArgumentOutOfRangeException("index");
-            _data[_width * index] = int.MinValue;
+            //_data[_width * index] = double.NaN;
             _deleted.Add(index);
         }
 
@@ -205,7 +200,7 @@
             for (int i = 0; i < _count; i++)
             {
                 var particle = At(i);
-                if (particle.X == int.MinValue) continue;
+                if (_deleted.Contains(i)) continue;
                 yield return particle;
             }
         }

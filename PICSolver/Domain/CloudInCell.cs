@@ -17,7 +17,7 @@ namespace PICSolver.Domain
         {
             foreach (var p in particles)
             {
-                int id = particles.GetCell(p.Id);
+                int id = particles.GetParticleCell(p.Id);
                 int top = grid.GetTopIndex(id);
                 var density = p.Q / grid.CellSquare;
 
@@ -31,7 +31,7 @@ namespace PICSolver.Domain
         {
             foreach (var p in particles)
             {
-                int id = particles.GetCell(p.Id);
+                int id = particles.GetParticleCell(p.Id);
                 int top = grid.GetTopIndex(id);
 
                 particles.AddForce(p.Id, grid.GetEx(id) * grid.InterpolateWeight(p.X, p.Y, top + 1), grid.GetEy(id) * grid.InterpolateWeight(p.X, p.Y, top + 1));

@@ -60,7 +60,7 @@
     <Compile Include="Abstract\IRectangleGrid.cs" />
     <Compile Include="Abstract\IParticle.cs" />
     <Compile Include="Abstract\IParticleStorage.cs" />
-    <Compile Include="Derivative\MatrixGradient.cs" />
+    <Compile Include="Derivative\ElectricField.cs" />
     <Compile Include="Derivative\ScalarDerivative.cs" />
     <Compile Include="Domain\CloudInCell.cs" />
     <Compile Include="Domain\Constants.cs" />
@@ -69,6 +69,7 @@
     <Compile Include="Domain\Particle.cs" />
     <Compile Include="Mover\Leapfrog.cs" />
     <Compile Include="PICMonitor.cs" />
+    <Compile Include="Storage\ParticleField.cs" />
     <Compile Include="Storage\ParticleArrayStorage.cs" />
     <Compile Include="Extensions\MatrixExtensions.cs" />
     <Compile Include="PICSolver2d.cs" />

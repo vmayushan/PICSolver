@@ -36,17 +36,21 @@ namespace PICSolver.Grid
 
         public double Hy { get { return _hy; } }
 
-        public int Nx { get { return _n; } }
+        public int N { get { return _n; } }
 
-        public int Ny { get { return _m; } }
+        public int M { get { return _m; } }
 
-        public double[] GridX { get { return _gridx; } }
+        public double[] X { get { return _gridx; } }
 
-        public double[] GridY { get { return _gridy; } }
+        public double[] Y { get { return _gridy; } }
 
         public double[] Ex { get { return _Ex; } set { _Ex = value; } }
 
         public double[] Ey { get { return _Ey; } set { _Ey = value; } }
+
+        public double[] Rho { get { return _rho; } }
+
+        public double[] Potential { get; set; }
 
         public int GetTopIndex(int cell)
         {
@@ -74,12 +78,15 @@ namespace PICSolver.Grid
 
         public int FindCell(double x, double y)
         {
-            for (int i = _cells - 1; i >= 0; i--)
-                if (x >= _x[i] && y >= _y[i]) return i;
-            throw new ApplicationException();
+            var cell = (int)Math.Floor(y / _hy) * _n + (int)Math.Floor(x / _hx);
+            if (cell > _cells || cell < 0) throw new ApplicationException();
+            return cell;
+            //for (int i = _cells - 1; i >= 0; i--)
+            //    if (x >= _x[i] && y >= _y[i]) return i;
+            //throw new ApplicationException();
         }
 
-        public bool OutOfGrid(double x, double y)
+        public bool IsOutOfGrid(double x, double y)
         {
             if (x > _right || x < _left || y > _top || y < _bottom) return true;
             return false;
@@ -110,7 +117,7 @@ namespace PICSolver.Grid
                 for (int j = 0; j < _m; j++)
                 {
                     _x[j * _n + i] = _gridx[i];
-                    _y[i * _m + j] = _gridy[i];
+                    _y[j * _n + i] = _gridy[j];
                 }
             }
 
@@ -120,7 +127,7 @@ namespace PICSolver.Grid
             }
 
             _hx = _x[1] - _x[0];
-            _hy = _y[_m] - _y[0];
+            _hy = _y[_n] - _y[0];
 
             _rho = new double[_cells];
             _Ex = new double[_cells];
@@ -137,7 +144,9 @@ namespace PICSolver.Grid
         public double InterpolateWeight(double x, double y, int cellId)
         {
             var dxdy = (_x[cellId] - x) * (_y[cellId] - y);
-            return Math.Abs(dxdy) / (_hx * _hy);
+            var weight = Math.Abs(dxdy) / (_hx * _hy);
+            if (weight < 0 || weight > 1.01) throw new ApplicationException();
+            return weight;
         }
         public double[] LinearSpaced(int length, double start, double stop)
         {
@@ -155,36 +164,6 @@ namespace PICSolver.Grid
             }
             data[data.Length - 1] = stop;
             return data;
-        }
-        private void SaveStateToCsv(double[] stateVector, string filename)
-        {
-            Matrix<double> result = Matrix<double>.Build.Dense(_n, _m);
-            for (int i = 0; i < _n; i++)
-            {
-                for (int j = 0; j < _m; j++)
-                {
-                    result[i, j] = stateVector[_m * i + j];
-                }
-            }
-            DelimitedWriter.Write(filename, result, ";");
-        }
-        public void SaveDebugInfoToCSV()
-        {
-            SaveStateToCsv(_rho, "rho.csv");
-            SaveStateToCsv(_Ex, "ex.csv");
-            SaveStateToCsv(_Ey, "ey.csv");
-        }
-        public double[,] GetRho()
-        {
-            Matrix<double> result = Matrix<double>.Build.Dense(_n, _m);
-            for (int i = 0; i < _n; i++)
-            {
-                for (int j = 0; j < _m; j++)
-                {
-                    result[i, j] = _rho[_m * i + j];
-                }
-            }
-            return result.ToArray();
         }
 
     }
