@@ -27,17 +27,17 @@ namespace PICSolver.Emitter
 
         public double[] GetParticlesToInject()
         {
-            var dx = _xN - _x0;
-            var dy = _yN - _y0;
-            if (_n == 1) return new double[] { _x0, _y0 };
+            var dx = (_xN - _x0) / ((double)_n - 1.0);
+            var dy = (_yN - _y0) / ((double)_n - 1.0);
+
             var injectPositions = new double[2 * _n];
+
             for (int i = 0; i < _n; i++)
             {
-                var cX = _x0 + i * dx / (_n - 1.0);
-                var cY = _y0 + i * dy / (_n - 1.0);
-                injectPositions[2 * i] = cX;
-                injectPositions[2 * i + 1] = cY;
+                injectPositions[2 * i] = _x0 + (double)i * dx;
+                injectPositions[2 * i + 1] = _y0 + (double)i * dy;
             }
+
             return injectPositions;
         }
     }

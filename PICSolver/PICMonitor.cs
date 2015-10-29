@@ -4,6 +4,7 @@ using PICSolver.Domain;
 using PICSolver.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,12 +15,16 @@ namespace PICSolver
     {
         private IRectangleGrid _grid;
         private IParticleStorage<Particle> _particles;
+        private Stopwatch _watch = new Stopwatch();
+        private Stopwatch _watchPoisson = new Stopwatch();
 
-        public double[,] Rho { get { return MatrixExtensions.RectangleArray(_grid.Rho, _grid.N, _grid.M); } }
+        public double[,] Rho { get; set; }
         public double[,] Ex { get { return MatrixExtensions.RectangleArray(_grid.Ex, _grid.N, _grid.M); } }
         public double[,] Ey { get { return MatrixExtensions.RectangleArray(_grid.Ey, _grid.N, _grid.M); } }
         public double[,] Potential { get { return MatrixExtensions.RectangleArray(_grid.Potential, _grid.N, _grid.M);  } }
         public int ParticlesCount { get { return _particles.Count; } }
+        public long Time { get; set; }
+        public long TimePoisson { get; set; }
 
         public PICMonitor(IRectangleGrid grid, IParticleStorage<Particle> particles)
         {
@@ -27,27 +32,27 @@ namespace PICSolver
             this._particles = particles;
         }
 
-        internal void Test()
+        internal void BeginIteration()
         {
+            _watch.Restart();
         }
 
-        //private void SaveStateToCsv(double[] stateVector, string filename)
-        //{
-        //    Matrix<double> result = Matrix<double>.Build.Dense(_n, _m);
-        //    for (int i = 0; i < _n; i++)
-        //    {
-        //        for (int j = 0; j < _m; j++)
-        //        {
-        //            result[i, j] = stateVector[_m * i + j];
-        //        }
-        //    }
-        //    DelimitedWriter.Write(filename, result, ";");
-        //}
-        //public void SaveDebugInfoToCSV()
-        //{
-        //    SaveStateToCsv(_rho, "rho.csv");
-        //    SaveStateToCsv(_Ex, "ex.csv");
-        //    SaveStateToCsv(_Ey, "ey.csv");
-        //}
+        internal void EndIteration()
+        {
+            _watch.Stop();
+            Time = _watch.ElapsedMilliseconds;
+            Rho = MatrixExtensions.RectangleArray(_grid.Rho, _grid.N, _grid.M);
+        }
+
+        internal void BeginPoissonSolve()
+        {
+            _watchPoisson.Restart();
+        }
+
+        internal void EndPoissonSolve()
+        {
+            _watchPoisson.Stop();
+            TimePoisson = _watchPoisson.ElapsedMilliseconds;
+        }
     }
 }

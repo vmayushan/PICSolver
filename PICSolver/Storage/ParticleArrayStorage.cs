@@ -128,7 +128,7 @@
         public void RemoveAt(int index)
         {
             if (index >= _capacity) throw new ArgumentOutOfRangeException("index");
-            //_data[_width * index] = double.NaN;
+            _data[_width * index+ 4] = 0;
             _deleted.Add(index);
         }
 

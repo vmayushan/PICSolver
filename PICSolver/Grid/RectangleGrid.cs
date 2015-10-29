@@ -145,7 +145,7 @@ namespace PICSolver.Grid
         {
             var dxdy = (_x[cellId] - x) * (_y[cellId] - y);
             var weight = Math.Abs(dxdy) / (_hx * _hy);
-            if (weight < 0 || weight > 1.01) throw new ApplicationException();
+            if (weight < 0 || weight > 1) throw new ApplicationException();
             return weight;
         }
         public double[] LinearSpaced(int length, double start, double stop)

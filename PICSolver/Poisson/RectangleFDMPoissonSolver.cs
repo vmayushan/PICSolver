@@ -5,6 +5,8 @@ using MathNet.Numerics.LinearAlgebra.Solvers;
 using PICSolver.Abstract;
 using System;
 using System.Linq;
+using MathNet.Numerics.Providers.LinearAlgebra.Mkl;
+using MathNet.Numerics.Providers.LinearAlgebra.OpenBlas;
 
 namespace PICSolver.Poisson
 {
@@ -20,6 +22,7 @@ namespace PICSolver.Poisson
         private Iterator<double> monitor;
         private IIterativeSolver<double> solver;
         private IPreconditioner<double> preconditioner;
+        private Vector<double> resultVector;
 
         public RectangleFDMPoissonSolver(double left, double right, int n, double bottom, double top, int m, BoundaryConditions boundary)
         {
@@ -42,13 +45,15 @@ namespace PICSolver.Poisson
             y = grid.Y;
             dx = grid.Hx;
             dy = grid.Hy;
+
             InitializeSolver();
         }
 
         private void InitializeSolver()
         {
-            var iterationCountStopCriterion = new IterationCountStopCriterion<double>(100);
-            var residualStopCriterion = new ResidualStopCriterion<double>(1e-6);
+            Control.LinearAlgebraProvider = new OpenBlasLinearAlgebraProvider();
+            var iterationCountStopCriterion = new IterationCountStopCriterion<double>(1000);
+            var residualStopCriterion = new ResidualStopCriterion<double>(1e-8);
             monitor = new Iterator<double>(iterationCountStopCriterion, residualStopCriterion);
             solver = new BiCgStab();
             preconditioner = new MILU0Preconditioner(true);
@@ -155,16 +160,16 @@ namespace PICSolver.Poisson
         public Vector<double> BuildVector(IRectangleGrid grid)
         {
             var vector = Vector<double>.Build.Dense(n * m);
-            this.VectorBoundaries(vector);
+
 
             for (int i = 1; i < n - 1; i++)
             {
                 for (int j = 1; j < m - 1; j++)
                 {
-                    /////нестыковка
                     vector[m * i + j] = -grid.GetDensity(n * j + i) / PICSolver.Domain.Constants.VacuumPermittivity;
                 }
             }
+            this.VectorBoundaries(vector);
             return vector;
         }
         public Matrix<double> Solve(Matrix<double> A, Vector<double> B)
@@ -176,7 +181,6 @@ namespace PICSolver.Poisson
         public void Solve(Matrix<double> A, Vector<double> B, Matrix<double> result)
         {
             monitor.Reset();
-            var test = Vector<double>.Build.SparseOfArray(B.ToArray());
             var resultVector = A.SolveIterative(B, solver, monitor, preconditioner);
 
 
@@ -192,8 +196,9 @@ namespace PICSolver.Poisson
         public double[] SolveFlatten(Matrix<double> A, Vector<double> B)
         {
             monitor.Reset();
-            var test = Vector<double>.Build.SparseOfArray(B.ToArray());
-            var resultVector = A.SolveIterative(B, solver, monitor, preconditioner);
+            if (resultVector == null)
+                resultVector = Vector<double>.Build.Dense(B.Count);
+            solver.Solve(A, B, resultVector, monitor, preconditioner);
             double[] result = new double[resultVector.Count];
             for (int i = 0; i < n; i++)
             {
@@ -202,7 +207,7 @@ namespace PICSolver.Poisson
                     result[n * j + i] = resultVector[m * i + j];
                 }
             }
-            
+
             return result;
         }
     }
