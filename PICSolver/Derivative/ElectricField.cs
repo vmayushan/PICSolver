@@ -1,7 +1,4 @@
-﻿using MathNet.Numerics.LinearAlgebra;
-using System;
-
-namespace PICSolver.Derivative
+﻿namespace PICSolver.Derivative
 {
     public class ElectricField
     {

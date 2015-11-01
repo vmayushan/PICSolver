@@ -23,8 +23,9 @@ namespace PICSolver.Poisson
         private readonly double[] x;
         private readonly double[] y;
         private Vector<double> result;
+        public Matrix<double> Matrix { get; set; }
 
-        public Poisson2DFdmSolver(IRectangleGrid grid, BoundaryConditions boundary)
+        public Poisson2DFdmSolver(IGrid2D grid, BoundaryConditions boundary)
         {
             this.boundary = boundary;
             n = grid.N;

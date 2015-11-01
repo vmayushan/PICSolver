@@ -1,5 +1,5 @@
-﻿using PICSolver.Abstract;
-using System;
+﻿using System;
+using PICSolver.Abstract;
 
 namespace PICSolver.Domain
 {
@@ -7,13 +7,13 @@ namespace PICSolver.Domain
     {
         public Particle(double x, double y, double px, double py, double ex, double ey, double q) : this()
         {
-            this.X = x;
-            this.Y = y;
-            this.Px = px;
-            this.Py = py;
-            this.Q = q;
-            this.Ex = ex;
-            this.Ey = ey;
+            X = x;
+            Y = y;
+            Px = px;
+            Py = py;
+            Q = q;
+            Ex = ex;
+            Ey = ey;
         }
         public int Id { get; set; }
         public double X { get; set; }
@@ -23,26 +23,15 @@ namespace PICSolver.Domain
         public double Ex { get; set; }
         public double Ey { get; set; }
         public double Q { get; set; }
-        public double BetaX { get { return Px / Math.Sqrt(1 + Px * Px); } }
-        public double BetaY { get { return Py / Math.Sqrt(1 + Py * Py); } }
-        public double Beta { get { return Math.Sqrt(BetaX * BetaX + BetaY * BetaY); } }
-        public double LorentzFactor { get { return 1 / Math.Sqrt(1 - Beta * Beta); } }
-        public double KineticEnergy { get { return (-1 / Constants.Alfa) * (LorentzFactor - 1); } }
+        public double BetaX => Px / Math.Sqrt(1 + Px * Px);
+        public double BetaY => Py / Math.Sqrt(1 + Py * Py);
+        public double Beta => Math.Sqrt(BetaX * BetaX + BetaY * BetaY);
+        public double LorentzFactor => 1 / Math.Sqrt(1 - Beta * Beta);
+        public double KineticEnergy => (-1 / Constants.Alfa) * (LorentzFactor - 1);
         public override string ToString()
         {
+            // ReSharper disable once UseStringInterpolation
             return string.Format("x = {0}, y = {1}, px = {2}, py = {3}, q = {4}", X, Y, Px, Py, Q);
-        }
-        private double BetaToMomentum(double beta)
-        {
-            return beta / Math.Sqrt(1 - beta * beta);
-        }
-        private double LorentzFactorToBeta(double gamma)
-        {
-            return Math.Sqrt(gamma * gamma - 1) / gamma;
-        }
-        private double KineticEnergyToLorentzFactor(double w)
-        {
-            return 1 - Constants.Alfa * w;
         }
     }
 }

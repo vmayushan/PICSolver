@@ -1,9 +1,11 @@
-﻿namespace PICSolver.Abstract
+﻿using PICSolver.Domain;
+
+namespace PICSolver.Abstract
 {
-    interface IEmitter
+    public interface IEmitter
     {
-        double[] GetParticlesToInject();
+        Particle[] Inject();
         double Length { get; }
-        int N { get; }
+        int ParticlesCount { get; }
     }
 }

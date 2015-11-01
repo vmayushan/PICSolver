@@ -1,14 +1,10 @@
-﻿using System;
-using MathNet.Numerics.LinearAlgebra;
-using PICSolver.Derivative;
-
-namespace PICSolver.Extensions
+﻿namespace PICSolver.Extensions
 {
     public static class MatrixExtensions
     {
         public static double[,] RectangleArray(double[] source, int n, int m)
         {
-            double[,] result = new double[n, m];
+            var result = new double[n, m];
             for (int i = 0; i < n; i++)
             {
                 for (int j = 0; j < m; j++)
@@ -21,7 +17,7 @@ namespace PICSolver.Extensions
 
         public static double[] FlattenArray(double[,] source, int n, int m)
         {
-            double[] result = new double[n * m];
+            var result = new double[n * m];
             for (int i = 0; i < n; i++)
             {
                 for (int j = 0; j < m; j++)

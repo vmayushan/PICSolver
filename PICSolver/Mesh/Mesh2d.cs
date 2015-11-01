@@ -1,4 +1,5 @@
-﻿using PICSolver.Abstract;
+﻿using System;
+using PICSolver.Abstract;
 
 namespace PICSolver.Mesh
 {
@@ -41,10 +42,7 @@ namespace PICSolver.Mesh
 
         public void ResetDensity()
         {
-            for (var i = 0; i < count; i++)
-            {
-                Density[i] = 0;
-            }
+            Array.Clear(Density, 0, count);
         }
     }
 }

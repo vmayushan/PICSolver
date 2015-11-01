@@ -1,8 +1,6 @@
-﻿using MathNet.Numerics.LinearAlgebra;
-
-namespace PICSolver.Abstract
+﻿namespace PICSolver.Abstract
 {
-    public interface IRectangleGrid
+    public interface IGrid2D
     {
         void InitializeGrid(int n, int m, double left, double right, double bottom, double top);
         double CellSquare { get; }
@@ -12,9 +10,9 @@ namespace PICSolver.Abstract
         double[] Y { get; }
         int N { get; }
         int M { get; }
-        double InterpolateWeight(double x, double y, int cellId);
-        int GetTopIndex(int cell);
+        int UpperCell(int cellId);
         int FindCell(double x, double y);
         bool IsOutOfGrid(double x, double y);
+        double[] GetCell(int cellId);
     }
 }

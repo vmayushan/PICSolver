@@ -21,5 +21,17 @@ namespace PICSolver.Domain
         {
             return p / Math.Sqrt(1 + p * p);
         }
+        public static double Momentum(double beta)
+        {
+            return beta / Math.Sqrt(1 - beta * beta);
+        }
+        public static double KineticEnergyToLorentzFactor(double w)
+        {
+            return 1 - Constants.Alfa * w;
+        }
+        public static double LorentzFactorToBeta(double gamma)
+        {
+            return Math.Sqrt(gamma * gamma - 1) / gamma;
+        }
     }
 }
