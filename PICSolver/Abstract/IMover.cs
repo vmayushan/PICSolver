@@ -4,7 +4,7 @@ namespace PICSolver.Abstract
 {
     public interface IMover
     {
-        void Step(int index, IParticleStorage<Particle> storage, IRectangleGrid grid, double h);
-        void Prepare(int index, IParticleStorage<Particle> storage, IRectangleGrid grid, double h);
+        void Step(IParticleStorage<Particle> particles, int index, double h);
+        void Prepare(IParticleStorage<Particle> particles, int index, double h);
     }
 }

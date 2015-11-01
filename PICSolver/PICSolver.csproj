@@ -71,12 +71,12 @@
     <Compile Include="Mesh\Mesh2d.cs" />
     <Compile Include="Mover\Leapfrog.cs" />
     <Compile Include="PICMonitor.cs" />
-    <Compile Include="Storage\ParticleField.cs" />
+    <Compile Include="Storage\Field.cs" />
     <Compile Include="Storage\ParticleArrayStorage.cs" />
     <Compile Include="Extensions\MatrixExtensions.cs" />
     <Compile Include="PICSolver2d.cs" />
     <Compile Include="Poisson\BoundaryConditions.cs" />
-    <Compile Include="Poisson\RectangleFDMPoissonSolver.cs" />
+    <Compile Include="Poisson\Poisson2dFdmSolver.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

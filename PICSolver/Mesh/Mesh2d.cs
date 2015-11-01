@@ -1,58 +1,49 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using PICSolver.Abstract;
+﻿using PICSolver.Abstract;
 
 namespace PICSolver.Mesh
 {
-    public class Mesh2d : IMesh
+    public class Mesh2D : IMesh
     {
-        private double[] _Ex;
-        private double[] _Ey;
-        private double[] _rho;
-        private int _cells;
+        private int count;
 
-        public double[] Ex { get { return _Ex; } set { _Ex = value; } }
-
-        public double[] Ey { get { return _Ey; } set { _Ey = value; } }
-
-        public double[] Density { get { return _rho; } }
-
+        public double[] Ex { get; set; }
+        public double[] Ey { get; set; }
+        public double[] Density { get; private set; }
         public double[] Potential { get; set; }
 
         public void InitializeMesh(int cells)
         {
-            _cells = cells;
-            _rho = new double[_cells];
-            _Ex = new double[_cells];
-            _Ey = new double[_cells];
+            count = cells;
+            Density = new double[count];
+            Ex = new double[count];
+            Ey = new double[count];
         }
 
-        public double GetEx(int cell)
+        public double GetEx(int cellId)
         {
-            return _Ex[cell];
+            return Ex[cellId];
         }
 
-        public double GetEy(int cell)
+        public double GetEy(int cellId)
         {
-            return _Ey[cell];
+            return Ey[cellId];
         }
 
         public void AddDensity(int cell, double density)
         {
-            _rho[cell] += density;
+            Density[cell] += density;
         }
-        public double GetDensity(int cell)
+
+        public double GetDensity(int cellId)
         {
-            return _rho[cell];
+            return Density[cellId];
         }
+
         public void ResetDensity()
         {
-            for (int i = 0; i < _cells; i++)
+            for (var i = 0; i < count; i++)
             {
-                _rho[i] = 0;
+                Density[i] = 0;
             }
         }
     }

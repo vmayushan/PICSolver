@@ -1,190 +1,197 @@
-﻿namespace PICSolver.Storage
-{
-    using Abstract;
-    using System;
-    using System.Collections;
-    using System.Collections.Generic;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using PICSolver.Abstract;
 
+namespace PICSolver.Storage
+{
     public class ParticleArrayStorage<T> : IParticleStorage<T> where T : IParticle, new()
     {
         /// <summary>
-        /// Particle data storage.
-        /// </summary>
-        private double[] _data;
-
-        /// <summary>
-        /// Particle cell id.
-        /// </summary>
-        private int[] _cell;
-
-        /// <summary>
-        /// List with deleted particles indexes.
-        /// </summary>
-        private IList<int> _deleted;
-
-        /// <summary>
-        /// Number of items.
-        /// </summary>
-        private int _count;
-
-        /// <summary>
-        /// Number of data columns.
-        /// </summary>
-        private int _width;
-
-        /// <summary>
         /// Total number of elements the internal data structure can hold without resizing.
         /// </summary>
-        private int _capacity;
+        private readonly int capacity;
 
         /// <summary>
-        /// Gets the number of elements contained in the <see cref="ParticleArrayStorage"/>.
+        ///     Particle cellId id.
         /// </summary>
-        public int Count { get { return _count - _deleted.Count; } }
+        private readonly int[] cell;
 
         /// <summary>
-        /// Gets the total number of elements the internal data structure can hold without resizing.
+        ///     Number of items.
         /// </summary>
-        public int Capacity { get { return _capacity; } }
+        private int count;
 
         /// <summary>
-        /// Initializes a new instance of the ParticleArrayStorage class that is empty and has the specified initial capacity.
+        ///     Particle data storage.
         /// </summary>
-        /// <param name="capacity">The number of elements that <see cref="ParticleArrayStorage"/> can store.</param>
+        private readonly double[] data;
+
+        /// <summary>
+        ///     List with deleted particles indexes.
+        /// </summary>
+        private readonly IList<int> deleted;
+
+        /// <summary>
+        ///     Number of data columns.
+        /// </summary>
+        private readonly int width;
+
+        /// <summary>
+        ///     Initializes a new instance of the ParticleArrayStorage class that is empty and has the specified initial capacity.
+        /// </summary>
+        /// <param name="capacity">The number of elements that ParticleArrayStorage can store.</param>
         public ParticleArrayStorage(int capacity)
         {
-            _width = 7;
-            _capacity = capacity;
-            _data = new double[_width * capacity];
-            _cell = new int[_capacity];
-            _deleted = new List<int>(capacity);
+            width = 7;
+            this.capacity = capacity;
+            data = new double[width * capacity];
+            cell = new int[this.capacity];
+            deleted = new List<int>(capacity);
         }
 
         /// <summary>
-        /// Adds a new item into <see cref="ParticleArrayStorage"/>
+        ///     Gets the number of elements contained in the ParticleArrayStorage.
+        /// </summary>
+        public int Count => count - deleted.Count;
+
+        /// <summary>
+        ///     Gets the total number of elements the internal data structure can hold without resizing.
+        /// </summary>
+        public int Capacity => capacity;
+
+        /// <summary>
+        ///     Adds a new item into ParticleArrayStorage
         /// </summary>
         /// <param name="particle">The value to add.</param>
         public int Add(T particle)
         {
-            if (_deleted.Count > 0)
+            if (deleted.Count > 0)
             {
-                var last = _deleted[_deleted.Count - 1];
+                var last = deleted[deleted.Count - 1];
                 At(last, particle);
-                _deleted.RemoveAt(_deleted.Count - 1);
+                deleted.RemoveAt(deleted.Count - 1);
                 return last;
             }
-            else
-            {
-                At(_count, particle);
-                _count++;
-                return _count - 1;
-            }
+            At(count, particle);
+            count++;
+            return count - 1;
         }
 
         /// <summary>
-        /// Reset forces on particles.
+        ///     Reset forces on particles.
         /// </summary>
         public void ResetForces()
         {
-            for (int i = 0; i < _capacity; i++)
+            for (var i = 0; i < capacity; i++)
             {
-                _data[_width * i + 5] = 0;
-                _data[_width * i + 6] = 0;
+                data[width * i + 5] = 0;
+                data[width * i + 6] = 0;
             }
         }
 
         /// <summary>
-        /// Add force to particle.
+        ///     Add force to particle.
         /// </summary>
         /// <param name="index">The index of the element.</param>
         /// <param name="forceX">Force on particle.</param>
         /// <param name="forceY">Force on particle.</param>
         public void AddForce(int index, double forceX, double forceY)
         {
-            _data[_width * index + 5] += forceX;
-            _data[_width * index + 6] += forceY;
+            data[width * index + 5] += forceX;
+            data[width * index + 6] += forceY;
         }
 
         /// <summary>
-        /// Get particle property value
+        ///     Get particle property value
         /// </summary>
         /// <param name="field">Property name</param>
         /// <param name="index">Particle id</param>
         /// <returns>Property value</returns>
-        public double Get(ParticleField field, int index)
+        public double Get(Field field, int index)
         {
-            return _data[_width * index + (int)field];
+            return data[width * index + (int)field];
         }
 
         /// <summary>
-        /// 
+        /// Set particle property
+        /// </summary>
+        /// <param name="field">Property name</param>
+        /// <param name="index">Particle id</param>
+        /// <param name="value">Property value</param>
+        public void Set(Field field, int index, double value)
+        {
+            data[width * index + (int)field] = value;
+        }
+
+        /// <summary>
         /// </summary>
         /// <param name="index">Particle id</param>
-        /// <param name="cell">cell id</param>
-        public void SetParticleCell(int index, int cell)
+        /// <param name="cellId">cellId id</param>
+        public void SetParticleCell(int index, int cellId)
         {
-            _cell[index] = cell;
+            cell[index] = cellId;
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="index">particle id</param>
-        /// <returns>cell id</returns>
+        /// <returns>cellId id</returns>
         public int GetParticleCell(int index)
         {
-            return _cell[index];
+            return cell[index];
         }
 
         /// <summary>
-        /// Removes item at the specified index.
+        ///     Removes item at the specified index.
         /// </summary>
         /// <param name="index">The index of the element.</param>
         public void RemoveAt(int index)
         {
-            if (index >= _capacity) throw new ArgumentOutOfRangeException("index");
-            _data[_width * index+ 4] = 0;
-            _deleted.Add(index);
+            if (index >= capacity) throw new ArgumentOutOfRangeException(nameof(index));
+            data[width * index + 4] = 0;
+            deleted.Add(index);
         }
 
         /// <summary>
-        /// Get the value of the given element at the specified index without range checking.
+        ///     Get the value of the given element at the specified index without range checking.
         /// </summary>
         /// <param name="index">The index of the element.</param>
         /// <returns>The requested element.</returns>
         public T At(int index)
         {
-            var particle = default(T);
-            particle = new T();
-            particle.Id = index;
-            particle.X = _data[_width * index];
-            particle.Y = _data[_width * index + 1];
-            particle.Px = _data[_width * index + 2];
-            particle.Py = _data[_width * index + 3];
-            particle.Q = _data[_width * index + 4];
-            particle.Ex = _data[_width * index + 5];
-            particle.Ey = _data[_width * index + 6];
+            var particle = new T
+            {
+                Id = index,
+                X = data[width * index],
+                Y = data[width * index + 1],
+                Px = data[width * index + 2],
+                Py = data[width * index + 3],
+                Q = data[width * index + 4],
+                Ex = data[width * index + 5],
+                Ey = data[width * index + 6]
+            };
             return particle;
         }
 
         /// <summary>
-        ///  Sets the value of the given element without range checking.
+        ///     Sets the value of the given element without range checking.
         /// </summary>
         /// <param name="index">The index of the element.</param>
         /// <param name="particle">The value to set the element to.</param>
         public void At(int index, T particle)
         {
-            _data[_width * index] = particle.X;
-            _data[_width * index + 1] = particle.Y;
-            _data[_width * index + 2] = particle.Px;
-            _data[_width * index + 3] = particle.Py;
-            _data[_width * index + 4] = particle.Q;
-            _data[_width * index + 5] = particle.Ex;
-            _data[_width * index + 6] = particle.Ey;
+            data[width * index] = particle.X;
+            data[width * index + 1] = particle.Y;
+            data[width * index + 2] = particle.Px;
+            data[width * index + 3] = particle.Py;
+            data[width * index + 4] = particle.Q;
+            data[width * index + 5] = particle.Ex;
+            data[width * index + 6] = particle.Ey;
         }
 
         /// <summary>
-        /// Update particle data
+        ///     Update particle data
         /// </summary>
         /// <param name="index">particle id</param>
         /// <param name="x"></param>
@@ -193,13 +200,14 @@
         /// <param name="py"></param>
         public void Update(int index, double x, double y, double px, double py)
         {
-            _data[_width * index] = x;
-            _data[_width * index + 1] = y;
-            _data[_width * index + 2] = px;
-            _data[_width * index + 3] = py;
+            data[width * index] = x;
+            data[width * index + 1] = y;
+            data[width * index + 2] = px;
+            data[width * index + 3] = py;
         }
+
         /// <summary>
-        /// Gets of sets the value of the given element at the specified index with range checking.
+        ///     Gets of sets the value of the given element at the specified index with range checking.
         /// </summary>
         /// <param name="i">The index of the element.</param>
         /// <returns></returns>
@@ -207,39 +215,40 @@
         {
             get
             {
-                if (i >= _count) throw new ArgumentOutOfRangeException("i");
+                if (i >= count) throw new ArgumentOutOfRangeException(nameof(i));
                 return At(i);
             }
             set
             {
-                if (i >= _count) throw new ArgumentOutOfRangeException("i");
+                if (i >= count) throw new ArgumentOutOfRangeException(nameof(i));
                 At(i, value);
             }
         }
+
         /// <summary>
-        /// Returns an IEnumerable that can be used to iterate through all values of the storage.
+        ///     Returns an IEnumerable that can be used to iterate through all values of the storage.
         /// </summary>
         public IEnumerator<T> GetEnumerator()
         {
-            for (int i = 0; i < _count; i++)
+            for (var i = 0; i < count; i++)
             {
                 var particle = At(i);
-                if (_deleted.Contains(i)) continue;
+                if (deleted.Contains(i)) continue;
                 yield return particle;
             }
         }
 
         public IEnumerable<int> EnumerateIndexes()
         {
-            for (int i = 0; i < _count; i++)
+            for (var i = 0; i < count; i++)
             {
-                if (_deleted.Contains(i)) continue;
+                if (deleted.Contains(i)) continue;
                 yield return i;
             }
         }
 
         /// <summary>
-        /// Returns an IEnumerable that can be used to iterate through all values of the storage.
+        ///     Returns an IEnumerable that can be used to iterate through all values of the storage.
         /// </summary>
         IEnumerator IEnumerable.GetEnumerator()
         {

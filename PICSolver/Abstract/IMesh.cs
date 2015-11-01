@@ -13,10 +13,10 @@ namespace PICSolver.Abstract
         double[] Potential { get; set; }
         double[] Ex { get; set; }
         double[] Ey { get; set; }
-        double GetEx(int cell);
-        double GetEy(int cell);
+        double GetEx(int cellId);
+        double GetEy(int cellId);
         void ResetDensity();
         void AddDensity(int cell, double density);
-        double GetDensity(int cell);
+        double GetDensity(int cellId);
     }
 }

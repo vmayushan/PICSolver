@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PICSolver.Poisson
 {
@@ -22,10 +18,10 @@ namespace PICSolver.Poisson
 
         public BoundaryConditions()
         {
-            Top = new BoundaryCondition() { Value = (x) => 0 };
-            Bottom = new BoundaryCondition() { Value = (x) => 0 };
-            Left = new BoundaryCondition() { Value = (x) => 0 };
-            Right = new BoundaryCondition() { Value = (x) => 0 };
+            Top = new BoundaryCondition() { Value = x => 0 };
+            Bottom = new BoundaryCondition() { Value = x => 0 };
+            Left = new BoundaryCondition() { Value = x => 0 };
+            Right = new BoundaryCondition() { Value = x => 0 };
         }
         public BoundaryCondition Top { get; set; }
         public BoundaryCondition Bottom { get; set; }

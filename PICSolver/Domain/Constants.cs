@@ -16,5 +16,10 @@ namespace PICSolver.Domain
         {
             return 2.33E-6 * (1 / (length * length)) * Math.Pow(uAnode, 1.5);
         }
+
+        public static double Beta(double p)
+        {
+            return p / Math.Sqrt(1 + p * p);
+        }
     }
 }

@@ -48,10 +48,10 @@ namespace PICSolver
             _mover = new Leapfrog();
             _grid = new RectangleGrid();
             _grid.InitializeGrid(101, 101, 0, 0.1, 0, 0.1);
-            _mesh = new Mesh2d();
+            _mesh = new Mesh2D();
             _mesh.InitializeMesh(_grid.N * _grid.M);
             _interpolation = new CloudInCell(_particles, _grid, _mesh);
-            _poissonSolver = new RectangleFDMPoissonSolver(_grid, _conditions);
+            _poissonSolver = new Poisson2DFdmSolver(_grid, _conditions);
             _poissonMatrixFDM = _poissonSolver.BuildMatrix();
             double gamma = 1 - Constants.Alfa * e0;
             double beta = Math.Sqrt(gamma * gamma - 1) / gamma;
@@ -79,7 +79,7 @@ namespace PICSolver
 
             var vector = _poissonSolver.BuildVector(_mesh);
             Monitor.BeginPoissonSolve();
-            _mesh.Potential = _poissonSolver.SolveFlatten(_poissonMatrixFDM, vector);
+            _mesh.Potential = _poissonSolver.Solve(_poissonMatrixFDM, vector);
             Monitor.EndPoissonSolve();
             ElectricField.EvaluateFlatten(_mesh.Potential, _mesh.Ex, _mesh.Ey, _grid.N, _grid.M, _grid.Hx, _grid.Hy);
 
@@ -88,21 +88,21 @@ namespace PICSolver
 
             for (int i = 0; i < _emitter.N; i++)
             {
-                _mover.Prepare(injectedParticles[i], _particles, _grid, _h);
+                _mover.Prepare(_particles, injectedParticles[i],  _h);
             }
 
 
             foreach (var index in _particles.EnumerateIndexes())
             {
-                _mover.Step(index, _particles, _grid, _h);
+                _mover.Step(_particles, index,  _h);
 
-                if (_grid.IsOutOfGrid(_particles.Get(ParticleField.X, index), _particles.Get(ParticleField.Y, index)))
+                if (_grid.IsOutOfGrid(_particles.Get(Field.X, index), _particles.Get(Field.Y, index)))
                 {
                     _particles.RemoveAt(index);
                 }
                 else
                 {
-                    var cell = _grid.FindCell(_particles.Get(ParticleField.X, index), _particles.Get(ParticleField.Y, index));
+                    var cell = _grid.FindCell(_particles.Get(Field.X, index), _particles.Get(Field.Y, index));
                     _particles.SetParticleCell(index, cell);
                 }
             }

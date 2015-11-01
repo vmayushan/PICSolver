@@ -1,6 +1,6 @@
 ﻿namespace PICSolver.Storage
 {
-    public enum ParticleField
+    public enum Field
     {
         X,
         Y,
