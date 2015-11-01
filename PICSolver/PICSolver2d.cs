@@ -8,6 +8,7 @@ using PICSolver.Mover;
 using PICSolver.Poisson;
 using PICSolver.Storage;
 using System;
+using PICSolver.Mesh;
 using Constants = PICSolver.Domain.Constants;
 
 namespace PICSolver
@@ -21,6 +22,7 @@ namespace PICSolver
         private IRectangleGrid _grid;
         private BoundaryConditions _conditions;
         private IInterpolationScheme _interpolation;
+        private IMesh _mesh;
         private double _step;
         private double _u;
 
@@ -46,14 +48,16 @@ namespace PICSolver
             _mover = new Leapfrog();
             _grid = new RectangleGrid();
             _grid.InitializeGrid(101, 101, 0, 0.1, 0, 0.1);
-            _interpolation = new CloudInCell(_particles, _grid);
+            _mesh = new Mesh2d();
+            _mesh.InitializeMesh(_grid.N * _grid.M);
+            _interpolation = new CloudInCell(_particles, _grid, _mesh);
             _poissonSolver = new RectangleFDMPoissonSolver(_grid, _conditions);
             _poissonMatrixFDM = _poissonSolver.BuildMatrix();
             double gamma = 1 - Constants.Alfa * e0;
             double beta = Math.Sqrt(gamma * gamma - 1) / gamma;
             _startImpact = beta / Math.Sqrt(1 - beta * beta);
             _h = _step * Constants.LightVelocity;
-            Monitor = new PICMonitor(_grid, _particles);
+            Monitor = new PICMonitor(_grid, _mesh, _particles);
         }
 
         public void Step()
@@ -70,14 +74,14 @@ namespace PICSolver
                 injectedParticles[i] = id;
             }
 
-            _grid.ResetDensity();
+            _mesh.ResetDensity();
             _interpolation.InterpolateToGrid();
 
-            var vector = _poissonSolver.BuildVector(_grid);
+            var vector = _poissonSolver.BuildVector(_mesh);
             Monitor.BeginPoissonSolve();
-            _grid.Potential = _poissonSolver.SolveFlatten(_poissonMatrixFDM, vector);
+            _mesh.Potential = _poissonSolver.SolveFlatten(_poissonMatrixFDM, vector);
             Monitor.EndPoissonSolve();
-            ElectricField.EvaluateFlatten(_grid.Potential, _grid.Ex, _grid.Ey, _grid.N, _grid.M, _grid.Hx, _grid.Hy);
+            ElectricField.EvaluateFlatten(_mesh.Potential, _mesh.Ex, _mesh.Ey, _grid.N, _grid.M, _grid.Hx, _grid.Hy);
 
             _particles.ResetForces();
             _interpolation.InterpolateForces();

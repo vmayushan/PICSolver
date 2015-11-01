@@ -11,9 +11,7 @@ namespace PICSolver.Grid
         private double[] _y;
         private int[] _up;
 
-        private double[] _Ex;
-        private double[] _Ey;
-        private double[] _rho;
+
 
         private int _n;
         private int _m;
@@ -44,36 +42,9 @@ namespace PICSolver.Grid
 
         public double[] Y { get { return _gridy; } }
 
-        public double[] Ex { get { return _Ex; } set { _Ex = value; } }
-
-        public double[] Ey { get { return _Ey; } set { _Ey = value; } }
-
-        public double[] Rho { get { return _rho; } }
-
-        public double[] Potential { get; set; }
-
         public int GetTopIndex(int cell)
         {
             return _up[cell];
-        }
-
-        public double GetEx(int cell)
-        {
-            return _Ex[cell];
-        }
-
-        public double GetEy(int cell)
-        {
-            return _Ey[cell];
-        }
-
-        public void AddDensity(int cell, double density)
-        {
-            _rho[cell] += density;
-        }
-        public double GetDensity(int cell)
-        {
-            return _rho[cell];
         }
 
         public int FindCell(double x, double y)
@@ -129,18 +100,8 @@ namespace PICSolver.Grid
             _hx = _x[1] - _x[0];
             _hy = _y[_n] - _y[0];
 
-            _rho = new double[_cells];
-            _Ex = new double[_cells];
-            _Ey = new double[_cells];
         }
 
-        public void ResetDensity()
-        {
-            for (int i = 0; i < _cells; i++)
-            {
-                _rho[i] = 0;
-            }
-        }
         public double InterpolateWeight(double x, double y, int cellId)
         {
             var dxdy = (_x[cellId] - x) * (_y[cellId] - y);

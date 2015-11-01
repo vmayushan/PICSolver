@@ -4,7 +4,9 @@ using MathNet.Numerics.LinearAlgebra.Double.Solvers;
 using MathNet.Numerics.LinearAlgebra.Solvers;
 using PICSolver.Abstract;
 using System;
+using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using MathNet.Numerics.Providers.LinearAlgebra.Mkl;
 using MathNet.Numerics.Providers.LinearAlgebra.OpenBlas;
 
@@ -52,8 +54,9 @@ namespace PICSolver.Poisson
         private void InitializeSolver()
         {
             Control.LinearAlgebraProvider = new OpenBlasLinearAlgebraProvider();
-            var iterationCountStopCriterion = new IterationCountStopCriterion<double>(1000);
-            var residualStopCriterion = new ResidualStopCriterion<double>(1e-8);
+            Control.LinearAlgebraProvider = new MklLinearAlgebraProvider();
+            var iterationCountStopCriterion = new IterationCountStopCriterion<double>(1);
+            var residualStopCriterion = new ResidualStopCriterion<double>(1e-6);
             monitor = new Iterator<double>(iterationCountStopCriterion, residualStopCriterion);
             solver = new BiCgStab();
             preconditioner = new MILU0Preconditioner(true);
@@ -126,6 +129,7 @@ namespace PICSolver.Poisson
                     matrix[m * i + j, m * i + j - 1] = 1 / (dy * dy);
                 }
             }
+            preconditioner.Initialize(matrix);
             return matrix;
         }
 
@@ -157,7 +161,7 @@ namespace PICSolver.Poisson
             }
             return vector;
         }
-        public Vector<double> BuildVector(IRectangleGrid grid)
+        public Vector<double> BuildVector(IMesh mesh)
         {
             var vector = Vector<double>.Build.Dense(n * m);
 
@@ -166,7 +170,7 @@ namespace PICSolver.Poisson
             {
                 for (int j = 1; j < m - 1; j++)
                 {
-                    vector[m * i + j] = -grid.GetDensity(n * j + i) / PICSolver.Domain.Constants.VacuumPermittivity;
+                    vector[m * i + j] = -mesh.GetDensity(n * j + i) / PICSolver.Domain.Constants.VacuumPermittivity;
                 }
             }
             this.VectorBoundaries(vector);
@@ -182,7 +186,6 @@ namespace PICSolver.Poisson
         {
             monitor.Reset();
             var resultVector = A.SolveIterative(B, solver, monitor, preconditioner);
-
 
             for (int i = 0; i < n; i++)
             {
@@ -210,5 +213,6 @@ namespace PICSolver.Poisson
 
             return result;
         }
+
     }
 }

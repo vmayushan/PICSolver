@@ -56,6 +56,7 @@
     <Compile Include="Abstract\IEmitter.cs" />
     <Compile Include="Abstract\IFieldSolver.cs" />
     <Compile Include="Abstract\IInterpolationScheme.cs" />
+    <Compile Include="Abstract\IMesh.cs" />
     <Compile Include="Abstract\IMover.cs" />
     <Compile Include="Abstract\IRectangleGrid.cs" />
     <Compile Include="Abstract\IParticle.cs" />
@@ -67,6 +68,7 @@
     <Compile Include="Emitter\RectangleEmitter.cs" />
     <Compile Include="Grid\RectangleGrid.cs" />
     <Compile Include="Domain\Particle.cs" />
+    <Compile Include="Mesh\Mesh2d.cs" />
     <Compile Include="Mover\Leapfrog.cs" />
     <Compile Include="PICMonitor.cs" />
     <Compile Include="Storage\ParticleField.cs" />

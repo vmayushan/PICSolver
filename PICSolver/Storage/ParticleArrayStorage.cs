@@ -9,7 +9,6 @@
     {
         /// <summary>
         /// Particle data storage.
-        /// x y px py q fx fy
         /// </summary>
         private double[] _data;
 
@@ -106,16 +105,32 @@
             _data[_width * index + 6] += forceY;
         }
 
+        /// <summary>
+        /// Get particle property value
+        /// </summary>
+        /// <param name="field">Property name</param>
+        /// <param name="index">Particle id</param>
+        /// <returns>Property value</returns>
         public double Get(ParticleField field, int index)
         {
             return _data[_width * index + (int)field];
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="index">Particle id</param>
+        /// <param name="cell">cell id</param>
         public void SetParticleCell(int index, int cell)
         {
             _cell[index] = cell;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="index">particle id</param>
+        /// <returns>cell id</returns>
         public int GetParticleCell(int index)
         {
             return _cell[index];
@@ -167,6 +182,15 @@
             _data[_width * index + 5] = particle.Ex;
             _data[_width * index + 6] = particle.Ey;
         }
+
+        /// <summary>
+        /// Update particle data
+        /// </summary>
+        /// <param name="index">particle id</param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="px"></param>
+        /// <param name="py"></param>
         public void Update(int index, double x, double y, double px, double py)
         {
             _data[_width * index] = x;

@@ -14,22 +14,24 @@ namespace PICSolver
     public class PICMonitor
     {
         private IRectangleGrid _grid;
+        private IMesh _mesh;
         private IParticleStorage<Particle> _particles;
         private Stopwatch _watch = new Stopwatch();
         private Stopwatch _watchPoisson = new Stopwatch();
 
         public double[,] Rho { get; set; }
-        public double[,] Ex { get { return MatrixExtensions.RectangleArray(_grid.Ex, _grid.N, _grid.M); } }
-        public double[,] Ey { get { return MatrixExtensions.RectangleArray(_grid.Ey, _grid.N, _grid.M); } }
-        public double[,] Potential { get { return MatrixExtensions.RectangleArray(_grid.Potential, _grid.N, _grid.M);  } }
+        public double[,] Ex { get { return MatrixExtensions.RectangleArray(_mesh.Ex, _grid.N, _grid.M); } }
+        public double[,] Ey { get { return MatrixExtensions.RectangleArray(_mesh.Ey, _grid.N, _grid.M); } }
+        public double[,] Potential { get { return MatrixExtensions.RectangleArray(_mesh.Potential, _grid.N, _grid.M);  } }
         public int ParticlesCount { get { return _particles.Count; } }
         public long Time { get; set; }
         public long TimePoisson { get; set; }
 
-        public PICMonitor(IRectangleGrid grid, IParticleStorage<Particle> particles)
+        public PICMonitor(IRectangleGrid grid, IMesh mesh, IParticleStorage<Particle> particles)
         {
             this._grid = grid;
             this._particles = particles;
+            this._mesh = mesh;
         }
 
         internal void BeginIteration()
@@ -41,7 +43,7 @@ namespace PICSolver
         {
             _watch.Stop();
             Time = _watch.ElapsedMilliseconds;
-            Rho = MatrixExtensions.RectangleArray(_grid.Rho, _grid.N, _grid.M);
+            Rho = MatrixExtensions.RectangleArray(_mesh.Density, _grid.N, _grid.M);
         }
 
         internal void BeginPoissonSolve()
