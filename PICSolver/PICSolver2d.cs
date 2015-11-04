@@ -27,12 +27,11 @@ namespace PICSolver
         private double u;
 
         public PICMonitor Monitor { get; set; }
-        //в качестве начального решения Пуассона использовать старое
         public void Prepare()
         {
             step = 1E-11;
             u = 100000;
-            particles = new ParticleArrayStorage<Particle>(100000);
+            particles = new ParticleArrayStorage<Particle>(1000000);
             boundaryConditions = new BoundaryConditions
             {
                 Top = new BoundaryCondition { Value = x => 0, Type = BoundaryConditionType.Neumann },
@@ -41,10 +40,10 @@ namespace PICSolver
                 Right = new BoundaryCondition { Value = x => u, Type = BoundaryConditionType.Dirichlet }
             };
 
-            emitter = new Emitter2D(1E-6, 0.04, 1E-6, 0.06, 101, 10, 0, -Constants.ChildLangmuirCurrent(0.1, u), step);
+            emitter = new Emitter2D(0, 0.001, 0, 0.099, 501, 0, 0, -Constants.ChildLangmuirCurrent(0.1, u), step);
             mover = new Leapfrog();
             grid = new Grid2D();
-            grid.InitializeGrid(101, 101, 0, 0.1, 0, 0.1);
+            grid.InitializeGrid(202, 101, 0, 0.1, 0, 0.1);
             mesh = new Mesh2D();
             mesh.InitializeMesh(grid.N * grid.M);
             interpolator = new CloudInCell(particles, grid, mesh);

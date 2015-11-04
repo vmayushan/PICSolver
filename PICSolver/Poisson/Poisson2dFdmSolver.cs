@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double.Solvers;
 using MathNet.Numerics.LinearAlgebra.Solvers;
+using MathNet.Numerics.Providers.LinearAlgebra.Mkl;
 using MathNet.Numerics.Providers.LinearAlgebra.OpenBlas;
 using PICSolver.Abstract;
 using Constants = PICSolver.Domain.Constants;
@@ -125,11 +127,27 @@ namespace PICSolver.Poisson
             return vector;
         }
 
+        private bool TrySolve(Matrix<double> matrix, Vector<double> right)
+        {
+            try
+            {
+                solver.Solve(matrix, right, result, monitor, preconditioner);
+            }
+            catch (NumericalBreakdownException)
+            {
+                return false;
+            }
+            return true;
+        }
+
         public double[] Solve(Matrix<double> matrix, Vector<double> right)
         {
             monitor.Reset();
-            solver.Solve(matrix, right, result, monitor, preconditioner);
-
+            for (int i = 0; ; i++)
+            {
+                if(i == 2) throw new ApplicationException();
+                if (TrySolve(matrix, right)) break;
+            }
 
             var newResult = new double[result.Count];
             for (var i = 0; i < n; i++)
@@ -146,8 +164,8 @@ namespace PICSolver.Poisson
         {
             result = Vector<double>.Build.Dense(n * m);
             Control.LinearAlgebraProvider = new OpenBlasLinearAlgebraProvider();
-            var iterationCountStopCriterion = new IterationCountStopCriterion<double>(1);
-            var residualStopCriterion = new ResidualStopCriterion<double>(1e-6);
+            var iterationCountStopCriterion = new IterationCountStopCriterion<double>(100);
+            var residualStopCriterion = new ResidualStopCriterion<double>(1e-12);
             monitor = new Iterator<double>(iterationCountStopCriterion, residualStopCriterion);
             solver = new BiCgStab();
             preconditioner = new MILU0Preconditioner();
@@ -166,5 +184,7 @@ namespace PICSolver.Poisson
                 vector[m * i + m - 1] = boundary.Top.Value(x[i]);
             }
         }
+
+       
     }
 }

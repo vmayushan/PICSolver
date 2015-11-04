@@ -19,12 +19,17 @@ namespace PICSolver
             this.grid = grid;
             this.particles = particles;
             this.mesh = mesh;
+            GridX = grid.X;
+            GridY = grid.Y;
         }
 
         public double[,] Rho { get; private set; }
         public double[,] Ex { get; private set; }
         public double[,] Ey { get; private set; }
+        public double[] GridX { get; private set; }
+        public double[] GridY { get; private set; }
         public double[,] Potential { get; private set; }
+        public double[] LineGraph { get; set; }
         public int ParticlesCount => particles.Count;
         public long Time { get; set; }
         public long TimePoisson { get; set; }
@@ -42,6 +47,7 @@ namespace PICSolver
             Ex = MatrixExtensions.RectangleArray(mesh.Ex, grid.N, grid.M);
             Ey = MatrixExtensions.RectangleArray(mesh.Ey, grid.N, grid.M);
             Potential = MatrixExtensions.RectangleArray(mesh.Potential, grid.N, grid.M);
+            LineGraph = MatrixExtensions.GetLineArrayX(mesh.Ex, grid.N, grid.M, 0);
         }
 
         internal void BeginPoissonSolve()

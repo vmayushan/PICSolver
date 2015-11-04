@@ -87,7 +87,7 @@ namespace PICSolver.Grid
             Hy = cellY[N] - cellY[0];
         }
 
-        public double[] LinearSpaced(int length, double start, double stop)
+        private double[] LinearSpaced(int length, double start, double stop)
         {
             if (length == 0) return new double[0];
             if (length == 1) return new[] { start };
