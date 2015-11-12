@@ -43,7 +43,7 @@ namespace PICSolver.Storage
         /// <param name="capacity">The number of elements that ParticleArrayStorage can store.</param>
         public ParticleArrayStorage(int capacity)
         {
-            width = 7;
+            width = 9;
             this.capacity = capacity;
             data = new double[width * capacity];
             cell = new int[this.capacity];
@@ -169,7 +169,9 @@ namespace PICSolver.Storage
                 Py = data[width * index + 3],
                 Q = data[width * index + 4],
                 Ex = data[width * index + 5],
-                Ey = data[width * index + 6]
+                Ey = data[width * index + 6],
+                PrevX = data[width * index + 7],
+                PrevY = data[width * index + 8]
             };
             return particle;
         }
@@ -188,6 +190,8 @@ namespace PICSolver.Storage
             data[width * index + 4] = particle.Q;
             data[width * index + 5] = particle.Ex;
             data[width * index + 6] = particle.Ey;
+            data[width * index + 7] = particle.PrevX;
+            data[width * index + 8] = particle.PrevY;
         }
 
         /// <summary>

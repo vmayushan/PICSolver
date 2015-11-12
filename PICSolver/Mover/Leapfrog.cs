@@ -18,8 +18,14 @@ namespace PICSolver.Mover
         {
             var px = particles.Get(Field.Px, index) + h * Constants.Alfa * particles.Get(Field.Ex, index);
             var py = particles.Get(Field.Py, index) + h * Constants.Alfa * particles.Get(Field.Ey, index);
-            var x = particles.Get(Field.X, index) + h * Constants.Beta(px);
-            var y = particles.Get(Field.Y, index) + h * Constants.Beta(py);
+
+            var x = particles.Get(Field.X, index);
+            var y = particles.Get(Field.Y, index);
+            particles.Set(Field.PrevX, index, x);
+            particles.Set(Field.PrevY, index, y);
+
+            x += h * Constants.Beta(px);
+            y += h * Constants.Beta(py);
             particles.Update(index, x, y, px, py);
         }
     }

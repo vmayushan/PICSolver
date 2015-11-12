@@ -12,7 +12,7 @@ using PICSolver.Storage;
 namespace PICSolver
 {
     // ReSharper disable once InconsistentNaming
-    public class PICSolver2D
+    public class IterativePICSolver2D
     {
         private BoundaryConditions boundaryConditions;
         private IEmitter emitter;
@@ -46,7 +46,7 @@ namespace PICSolver
             grid.InitializeGrid(101, 101, 0, 0.1, 0, 0.1);
             mesh = new Mesh2D();
             mesh.InitializeMesh(grid.N * grid.M);
-            interpolator = new CloudInCell(particles, grid, mesh);
+            interpolator = new CloudInCellCurrentLinkage(particles, grid, mesh,step);
             poissonSolver = new Poisson2DFdmSolver(grid, boundaryConditions);
             poissonSolver.Matrix = poissonSolver.BuildMatrix();
             h = step * Constants.LightVelocity;

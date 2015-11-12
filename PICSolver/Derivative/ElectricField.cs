@@ -4,9 +4,9 @@
     {
         public static void EvaluateFlatten(double[] vector, double[] dx, double[] dy, int n, int m, double hx = 1.0, double hy = 1.0)
         {
-            for (int i = 0; i < n; i++)
+            for (var i = 0; i < n; i++)
             {
-                for (int j = 0; j < m; j++)
+                for (var j = 0; j < m; j++)
                 {
                     if (i == 0)
                         //left

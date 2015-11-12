@@ -14,6 +14,8 @@ namespace PICSolver.Domain
             Q = q;
             Ex = ex;
             Ey = ey;
+            PrevX = x;
+            PrevY = y;
         }
         public int Id { get; set; }
         public double X { get; set; }
@@ -23,6 +25,8 @@ namespace PICSolver.Domain
         public double Ex { get; set; }
         public double Ey { get; set; }
         public double Q { get; set; }
+        public double PrevX { get; set; }
+        public double PrevY { get; set; }
         public double BetaX => Px / Math.Sqrt(1 + Px * Px);
         public double BetaY => Py / Math.Sqrt(1 + Py * Py);
         public double Beta => Math.Sqrt(BetaX * BetaX + BetaY * BetaY);

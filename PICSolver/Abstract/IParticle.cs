@@ -12,5 +12,7 @@
         double BetaY { get; }
         double Ex { get; set; }
         double Ey { get; set; }
+        double PrevX { get; set; }
+        double PrevY { get; set; }
     }
 }

@@ -62,14 +62,17 @@
     <Compile Include="Abstract\IParticle.cs" />
     <Compile Include="Abstract\IParticleStorage.cs" />
     <Compile Include="Derivative\ElectricField.cs" />
+    <Compile Include="Interpolation\CloudInCellCurrentLinkage.cs" />
     <Compile Include="Interpolation\CloudInCell.cs" />
     <Compile Include="Domain\Constants.cs" />
     <Compile Include="Emitter\Emitter2D.cs" />
     <Compile Include="Grid\Grid2D.cs" />
     <Compile Include="Domain\Particle.cs" />
+    <Compile Include="PICTest.cs" />
     <Compile Include="Mesh\Mesh2d.cs" />
     <Compile Include="Mover\Leapfrog.cs" />
     <Compile Include="PICMonitor.cs" />
+    <Compile Include="IterativePICSolver2D.cs" />
     <Compile Include="Storage\Field.cs" />
     <Compile Include="Storage\ParticleArrayStorage.cs" />
     <Compile Include="Extensions\MatrixExtensions.cs" />

@@ -8,6 +8,8 @@
         Py,
         Q,
         Ex,
-        Ey
+        Ey,
+        PrevX,
+        PrevY
     }
 }
