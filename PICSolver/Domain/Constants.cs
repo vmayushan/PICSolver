@@ -33,7 +33,7 @@ namespace PICSolver.Domain
         }
         public static double KineticEnergyToLorentzFactor(double w)
         {
-            return 1 - Constants.Alfa * w;
+            return 1 - Alfa * w;
         }
         public static double LorentzFactorToBeta(double gamma)
         {

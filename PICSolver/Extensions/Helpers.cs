@@ -68,5 +68,15 @@ namespace PICSolver.Extensions
         {
             return Math.Sqrt(Math.Pow(x2 - x1, 2) + Math.Pow(y2 - y1, 2));
         }
+
+        public static double LineY(double x1, double x2, double y1, double y2, double x)
+        {
+            return ((x - x2) * y1 + (x1 - x) * y2) / (x1 - x2);
+        }
+
+        public static double LineX(double x1, double x2, double y1, double y2, double y)
+        {
+            return ((y1 - y) * x2 + (y - y2) * x1) / (y1 - y2);
+        }
     }
 }
