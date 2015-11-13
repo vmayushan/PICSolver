@@ -48,5 +48,18 @@
             }
             return result;
         }
+
+        public static double[] Multiply(double[] source, double scalar)
+        {
+            for (var i = 0; i < source.Length; i++) source[i] *= scalar;
+            return source;
+        }
+
+        public static double[] Sum(double[] lhs, double[] rhs)
+        {
+            var result = new double[lhs.Length];
+            for (var i = 0; i < lhs.Length; i++) result[i] = lhs[i] + rhs[i];
+            return result;
+        }
     }
 }

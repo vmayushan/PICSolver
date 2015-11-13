@@ -3,7 +3,7 @@
     public interface IMesh
     {
         void InitializeMesh(int cells);
-        double[] Density { get; }
+        double[] Density { get; set; }
         double[] Potential { get; set; }
         double[] Ex { get; set; }
         double[] Ey { get; set; }

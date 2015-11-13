@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using PICSolver.Abstract;
 using PICSolver.Domain;
 using PICSolver.Storage;
@@ -12,21 +14,19 @@ namespace PICSolver.Interpolation
         private readonly IParticleStorage<Particle> particles;
         private readonly IGrid2D grid;
         private readonly IMesh mesh;
-        private readonly double step;
 
-        public CloudInCellCurrentLinkage(IParticleStorage<Particle> particles, IGrid2D grid, IMesh mesh, double step)
+        public CloudInCellCurrentLinkage(IParticleStorage<Particle> particles, IGrid2D grid, IMesh mesh)
         {
             this.particles = particles;
             this.grid = grid;
             this.mesh = mesh;
-            this.step = step;
         }
 
         public void InterpolateToGrid()
         {
             foreach (var particleId in particles.EnumerateIndexes())
             {
-                var current = particles.Get(Field.Q, particleId) * step / grid.CellSquare;
+                var current = particles.Get(Field.Q, particleId)  / grid.CellSquare;
 
                 var x = particles.Get(Field.X, particleId);
                 var y = particles.Get(Field.Y, particleId);
@@ -36,60 +36,67 @@ namespace PICSolver.Interpolation
                 var prevY = particles.Get(Field.PrevY, particleId);
                 var prevCell = grid.FindCell(prevX, prevY);
 
-
-                if (cellId == prevCell)
+                var diff = cellId - prevCell;
+                double x2, y2;
+                switch (diff)
                 {
-                    AddCurrentLinkageToCell(cellId, current, x, y, prevX, prevY);
-                }
-                else
-                {
-                    //http://stackoverflow.com/questions/3788605/if-debug-vs-conditionaldebug глянуть
-#if DEBUG
-                    var controlLength = Math.Sqrt(Math.Pow(x - prevX, 2) + Math.Pow(y - prevY, 2));
-                    var length = 0.0;
-#endif
-                    while (true)
-                    {
-                        var cell = grid.GetCell(cellId);
-                        var cellX = cell[0];
-                        var cellY = cell[1];
-                        var dx = prevX - x;
-                        var dy = prevY - y;
-                        var intersectX = dx > 0 ? cellX + grid.Hx : cellX;
-                        var intersectY = dy > 0 ? cellY + grid.Hy : cellY;
-
-                        int newCell;
-                        if (Math.Abs(dx / (intersectX - x)) >= Math.Abs(dy / (intersectY - y)))
+                    case 0:
+                        AddCurrentLinkageToCell(cellId, current, x, y, prevX, prevY);
+                        break;
+                    case -1: //prevcell - right
+                        x2 = grid.GetCell(prevCell)[0];
+                        y2 = LineY(prevX, x, prevY, y, x2);
+                        AddCurrentLinkageToCell(cellId, current, x, y, x2, y2);
+                        AddCurrentLinkageToCell(prevCell, current, x2, y2, prevX, prevY);
+                        break;
+                    case 1: //prevcell - left
+                        x2 = grid.GetCell(cellId)[0];
+                        y2 = LineY(prevX, x, prevY, y, x2);
+                        AddCurrentLinkageToCell(prevCell, current, prevX, prevY, x2, y2);
+                        AddCurrentLinkageToCell(cellId, current, x2, y2, x, y);
+                        break;
+                    default:
+                        if (grid.UpperCell(cellId) == prevCell)
                         {
-                            intersectY = y + (dy / dx) * (intersectX - x);
-                            newCell = grid.FindCell(intersectX + Math.Sign(dx) * 0.5 * grid.Hx, intersectY);
+                            y2 = grid.GetCell(prevCell)[1];
+                            x2 = LineX(prevX, x, prevY, y, y2);
+
+                            AddCurrentLinkageToCell(cellId, current, x, y, x2, y2);
+                            AddCurrentLinkageToCell(prevCell, current, x2, y2, prevX, prevY);
+                        }
+                        else if (grid.UpperCell(prevCell) == cellId)
+                        {
+                            y2 = grid.GetCell(cellId)[1];
+                            x2 = LineX(prevX, x, prevY, y, y2);
+
+                            AddCurrentLinkageToCell(prevCell, current, prevX, prevY, x2, y2);
+                            AddCurrentLinkageToCell(cellId, current, x2, y2, x, y);
+                            
                         }
                         else
                         {
-                            intersectX = x + (dx / dy) * (intersectY - y);
-                            newCell = grid.FindCell(intersectX, intersectY + Math.Sign(dy) * 0.5 * grid.Hy);
+                            AddCurrentLinkageToCell(cellId, current, x, y, x, y);
                         }
-#if DEBUG
-                        length += Math.Sqrt(Math.Pow(x - intersectX, 2) + Math.Pow(y - intersectY, 2));
-#endif
-                        AddCurrentLinkageToCell(cellId, current, x, y, intersectX, intersectY);
-                        cellId = newCell;
-                        x = intersectX;
-                        y = intersectY;
-                        if (cellId == prevCell)
-                        {
-#if DEBUG
-                            length += Math.Sqrt(Math.Pow(prevX - x, 2) + Math.Pow(prevY - y, 2));
-                             Debug.Assert(Math.Abs(length - controlLength) < double.Epsilon, "Interpolation error");
-#endif
-
-                            AddCurrentLinkageToCell(cellId, current, x, y, prevX, prevY);
-                            break;
-                        }
-                    }
-
+                        break;
                 }
 
+                //var list = new List<Point>();
+                //list.Add(new Point(x,y));
+                //list.Add
+                //var intersect = new double[] { minX, maxX }.
+                //    Concat(grid.X.Where(p => p > minX && p < maxX)).
+                //    Concat(grid.Y.Where(p => p > Math.Min(y, prevY) && p < Math.Max(y, prevY)).
+                //    Select(p => LineX(prevX, x, prevY, y, p))).OrderBy(p => p).ToArray();
+                //for (int i = 0; i < intersect.Length - 1; i++)
+                //{
+                //    var yy = LineY(prevX, x, prevY, y, intersect[i]);
+                //    Console.WriteLine(yy);
+                //    Console.WriteLine(grid.FindCell(intersect[i], yy));
+                //}
+
+                //var xx = LineX(prevX, x, prevY, y, y: 1);
+
+                //Console.WriteLine(xx);
 
             }
         }
@@ -123,6 +130,16 @@ namespace PICSolver.Interpolation
                 particles.AddForce(particleId, mesh.GetEx(topCellId) * leftTopWeight, mesh.GetEy(topCellId) * leftTopWeight);
                 particles.AddForce(particleId, mesh.GetEx(topCellId + 1) * rightTopWeight, mesh.GetEy(topCellId + 1) * rightTopWeight);
             }
+        }
+
+        private static double LineY(double x1, double x2, double y1, double y2, double x)
+        {
+            return ((x - x2) * y1 + (x1 - x) * y2) / (x1 - x2);
+        }
+
+        private static double LineX(double x1, double x2, double y1, double y2, double y)
+        {
+            return ((y1 - y) * x2 + (y - y2) * x1) / (y1 - y2);
         }
 
         private double InterpolateWeight(double x, double y, int cellId)

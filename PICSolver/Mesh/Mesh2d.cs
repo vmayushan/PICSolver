@@ -9,7 +9,7 @@ namespace PICSolver.Mesh
 
         public double[] Ex { get; set; }
         public double[] Ey { get; set; }
-        public double[] Density { get; private set; }
+        public double[] Density { get; set; }
         public double[] Potential { get; set; }
 
         public void InitializeMesh(int cells)

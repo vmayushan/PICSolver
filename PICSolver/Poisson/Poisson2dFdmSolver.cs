@@ -165,7 +165,7 @@ namespace PICSolver.Poisson
             result = Vector<double>.Build.Dense(n * m);
             Control.LinearAlgebraProvider = new OpenBlasLinearAlgebraProvider();
             var iterationCountStopCriterion = new IterationCountStopCriterion<double>(100);
-            var residualStopCriterion = new ResidualStopCriterion<double>(1e-12);
+            var residualStopCriterion = new ResidualStopCriterion<double>(1e-9);
             monitor = new Iterator<double>(iterationCountStopCriterion, residualStopCriterion);
             solver = new BiCgStab();
             preconditioner = new MILU0Preconditioner();
