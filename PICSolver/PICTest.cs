@@ -38,10 +38,10 @@ namespace PICSolver
             interpolator = new CloudInCellCurrentLinkage(particles, grid, mesh);
             poissonSolver = new Poisson2DFdmSolver(grid, boundaryConditions);
             poissonSolver.Matrix = poissonSolver.BuildMatrix();
-            var particle = new Particle(1.25, 1.25, 0, 0, 0, 0, 1);
+            var particle = new Particle(4, 1, 0, 0, 0, 0, 1);
             var particleId = particles.Add(particle);
-            particles.Set(Field.PrevX, particleId, 1.25);
-            particles.Set(Field.PrevY, particleId, 0);
+            particles.Set(Field.PrevX, particleId, 2);
+            particles.Set(Field.PrevY, particleId, 1);
 
             var cell = grid.FindCell(particles.Get(Field.X, particleId), particles.Get(Field.Y, particleId));
             particles.SetParticleCell(particleId, cell);

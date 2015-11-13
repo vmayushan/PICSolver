@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using PICSolver.Abstract;
@@ -8,7 +7,6 @@ using PICSolver.Storage;
 
 namespace PICSolver.Interpolation
 {
-    //old version: http://pastebin.com/w4kUC3K0
     public class CloudInCellCurrentLinkage : IInterpolationScheme
     {
         private readonly IParticleStorage<Particle> particles;
@@ -26,7 +24,7 @@ namespace PICSolver.Interpolation
         {
             foreach (var particleId in particles.EnumerateIndexes())
             {
-                var current = particles.Get(Field.Q, particleId)  / grid.CellSquare;
+                var current = particles.Get(Field.Q, particleId) / grid.CellSquare;
 
                 var x = particles.Get(Field.X, particleId);
                 var y = particles.Get(Field.Y, particleId);
@@ -71,33 +69,23 @@ namespace PICSolver.Interpolation
 
                             AddCurrentLinkageToCell(prevCell, current, prevX, prevY, x2, y2);
                             AddCurrentLinkageToCell(cellId, current, x2, y2, x, y);
-                            
+
                         }
                         else
                         {
-                            AddCurrentLinkageToCell(cellId, current, x, y, x, y);
+                            var intersect = grid.X.Where(p => p > Math.Min(x, prevX) && p < Math.Max(x, prevX))
+                                    .Select(p => new { X = p, Y = LineY(prevX, x, prevY, y, p) })
+                                    .Concat(grid.Y.Where(p => p > Math.Min(y, prevY) && p < Math.Max(y, prevY))
+                                    .Select(p => new { X = LineX(prevX, x, prevY, y, p), Y = p }))
+                                    .Concat(new[] { new { X = x, Y = y }, new { X = prevX, Y = prevY } })
+                                    .OrderBy(p => p.X).ToArray();
+                            for (var i = 0; i < intersect.Length - 1; i++)
+                            {
+                                AddCurrentLinkageToCell(grid.FindCell(intersect[i].X, intersect[i].Y), current, intersect[i].X, intersect[i].Y, intersect[i + 1].X, intersect[i + 1].Y);
+                            }
                         }
                         break;
                 }
-
-                //var list = new List<Point>();
-                //list.Add(new Point(x,y));
-                //list.Add
-                //var intersect = new double[] { minX, maxX }.
-                //    Concat(grid.X.Where(p => p > minX && p < maxX)).
-                //    Concat(grid.Y.Where(p => p > Math.Min(y, prevY) && p < Math.Max(y, prevY)).
-                //    Select(p => LineX(prevX, x, prevY, y, p))).OrderBy(p => p).ToArray();
-                //for (int i = 0; i < intersect.Length - 1; i++)
-                //{
-                //    var yy = LineY(prevX, x, prevY, y, intersect[i]);
-                //    Console.WriteLine(yy);
-                //    Console.WriteLine(grid.FindCell(intersect[i], yy));
-                //}
-
-                //var xx = LineX(prevX, x, prevY, y, y: 1);
-
-                //Console.WriteLine(xx);
-
             }
         }
 

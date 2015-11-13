@@ -74,9 +74,8 @@ namespace PICSolver
             Monitor.BeginPoissonSolve();
             mesh.Potential = poissonSolver.Solve(poissonSolver.Matrix, vector);
             Monitor.EndPoissonSolve();
-            mesh.ResetDensity();
             ElectricField.EvaluateFlatten(mesh.Potential, mesh.Ex, mesh.Ey, grid.N, grid.M, grid.Hx, grid.Hy);
-
+            mesh.ResetDensity();
             particles.ResetForces();
             interpolator.InterpolateForces();
 
