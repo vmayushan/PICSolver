@@ -75,7 +75,7 @@
     <Compile Include="IterativePICSolver2D.cs" />
     <Compile Include="Storage\Field.cs" />
     <Compile Include="Storage\ParticleArrayStorage.cs" />
-    <Compile Include="Extensions\MatrixExtensions.cs" />
+    <Compile Include="Extensions\Helpers.cs" />
     <Compile Include="PICSolver2d.cs" />
     <Compile Include="Poisson\BoundaryConditions.cs" />
     <Compile Include="Poisson\Poisson2dFdmSolver.cs" />

@@ -1,6 +1,8 @@
-﻿namespace PICSolver.Extensions
+﻿using System;
+
+namespace PICSolver.Extensions
 {
-    public static class MatrixExtensions
+    public static class Helpers
     {
         public static double[,] RectangleArray(double[] source, int n, int m)
         {
@@ -60,6 +62,11 @@
             var result = new double[lhs.Length];
             for (var i = 0; i < lhs.Length; i++) result[i] = lhs[i] + rhs[i];
             return result;
+        }
+
+        public static double Length(double x1, double y1, double x2, double y2)
+        {
+            return Math.Sqrt(Math.Pow(x2 - x1, 2) + Math.Pow(y2 - y1, 2));
         }
     }
 }

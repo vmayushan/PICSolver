@@ -43,11 +43,11 @@ namespace PICSolver
         {
             watch.Stop();
             Time = watch.ElapsedMilliseconds;
-            Rho = MatrixExtensions.RectangleArray(mesh.Density, grid.N, grid.M);
-            Ex = MatrixExtensions.RectangleArray(mesh.Ex, grid.N, grid.M);
-            Ey = MatrixExtensions.RectangleArray(mesh.Ey, grid.N, grid.M);
-            Potential = MatrixExtensions.RectangleArray(mesh.Potential, grid.N, grid.M);
-            LineGraph = MatrixExtensions.GetLineArrayX(mesh.Ex, grid.N, grid.M, 0);
+            Rho = Helpers.RectangleArray(mesh.Density, grid.N, grid.M);
+            Ex = Helpers.RectangleArray(mesh.Ex, grid.N, grid.M);
+            Ey = Helpers.RectangleArray(mesh.Ey, grid.N, grid.M);
+            Potential = Helpers.RectangleArray(mesh.Potential, grid.N, grid.M);
+            LineGraph = Helpers.GetLineArrayX(mesh.Ex, grid.N, grid.M, 0);
         }
 
         internal void BeginPoissonSolve()

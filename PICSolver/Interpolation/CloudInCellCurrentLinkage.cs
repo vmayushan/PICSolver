@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using PICSolver.Abstract;
 using PICSolver.Domain;
+using PICSolver.Extensions;
 using PICSolver.Storage;
 
 namespace PICSolver.Interpolation
@@ -34,8 +35,10 @@ namespace PICSolver.Interpolation
                 var prevY = particles.Get(Field.PrevY, particleId);
                 var prevCell = grid.FindCell(prevX, prevY);
 
+                var length = Helpers.Length(x, y, prevX, prevY);
+
                 var diff = cellId - prevCell;
-                double x2, y2;
+                double x2, y2, intervalLength, ratio;
                 switch (diff)
                 {
                     case 0:
@@ -44,31 +47,37 @@ namespace PICSolver.Interpolation
                     case -1: //prevcell - right
                         x2 = grid.GetCell(prevCell)[0];
                         y2 = LineY(prevX, x, prevY, y, x2);
-                        AddCurrentLinkageToCell(cellId, current, x, y, x2, y2);
-                        AddCurrentLinkageToCell(prevCell, current, x2, y2, prevX, prevY);
+                        intervalLength = Helpers.Length(x, y, x2, y2);
+                        ratio = intervalLength / length;
+                        AddCurrentLinkageToCell(cellId, ratio * current, x, y, x2, y2);
+                        AddCurrentLinkageToCell(prevCell, (1 - ratio) * current, x2, y2, prevX, prevY);
                         break;
                     case 1: //prevcell - left
                         x2 = grid.GetCell(cellId)[0];
                         y2 = LineY(prevX, x, prevY, y, x2);
-                        AddCurrentLinkageToCell(prevCell, current, prevX, prevY, x2, y2);
-                        AddCurrentLinkageToCell(cellId, current, x2, y2, x, y);
+                        intervalLength = Helpers.Length(prevX, prevY, x2, y2);
+                        ratio = intervalLength / length;
+                        AddCurrentLinkageToCell(prevCell, ratio * current, prevX, prevY, x2, y2);
+                        AddCurrentLinkageToCell(cellId, (1 - ratio) * current, x2, y2, x, y);
                         break;
                     default:
                         if (grid.UpperCell(cellId) == prevCell)
                         {
                             y2 = grid.GetCell(prevCell)[1];
                             x2 = LineX(prevX, x, prevY, y, y2);
-
-                            AddCurrentLinkageToCell(cellId, current, x, y, x2, y2);
-                            AddCurrentLinkageToCell(prevCell, current, x2, y2, prevX, prevY);
+                            intervalLength = Helpers.Length(x, y, x2, y2);
+                            ratio = intervalLength / length;
+                            AddCurrentLinkageToCell(cellId, ratio * current, x, y, x2, y2);
+                            AddCurrentLinkageToCell(prevCell, (1 - ratio) * current, x2, y2, prevX, prevY);
                         }
                         else if (grid.UpperCell(prevCell) == cellId)
                         {
                             y2 = grid.GetCell(cellId)[1];
                             x2 = LineX(prevX, x, prevY, y, y2);
-
-                            AddCurrentLinkageToCell(prevCell, current, prevX, prevY, x2, y2);
-                            AddCurrentLinkageToCell(cellId, current, x2, y2, x, y);
+                            intervalLength = Helpers.Length(prevX, prevY, x2, y2);
+                            ratio = intervalLength / length;
+                            AddCurrentLinkageToCell(prevCell, ratio * current, prevX, prevY, x2, y2);
+                            AddCurrentLinkageToCell(cellId, (1 - ratio) * current, x2, y2, x, y);
 
                         }
                         else
@@ -81,7 +90,9 @@ namespace PICSolver.Interpolation
                                     .OrderBy(p => p.X).ToArray();
                             for (var i = 0; i < intersect.Length - 1; i++)
                             {
-                                AddCurrentLinkageToCell(grid.FindCell(intersect[i].X, intersect[i].Y), current, intersect[i].X, intersect[i].Y, intersect[i + 1].X, intersect[i + 1].Y);
+                                intervalLength = Helpers.Length(intersect[i].X, intersect[i].Y, intersect[i + 1].X, intersect[i + 1].Y);
+                                ratio = intervalLength / length;
+                                AddCurrentLinkageToCell(grid.FindCell(intersect[i].X, intersect[i].Y), ratio * current, intersect[i].X, intersect[i].Y, intersect[i + 1].X, intersect[i + 1].Y);
                             }
                         }
                         break;

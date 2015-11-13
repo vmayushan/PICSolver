@@ -40,7 +40,7 @@ namespace PICSolver
                 Right = new BoundaryCondition { Value = x => u, Type = BoundaryConditionType.Dirichlet }
             };
 
-            emitter = new Emitter2D(0, 0.04, 0, 0.06, 501, 0, 0, -Constants.ChildLangmuirCurrent(0.1, u), step);
+            emitter = new Emitter2D(0, 0.04, 0, 0.06, 101, 0, 0, -Constants.ChildLangmuirCurrent(0.1, u), step);
             mover = new Leapfrog();
             grid = new Grid2D();
             grid.InitializeGrid(101, 101, 0, 0.1, 0, 0.1);

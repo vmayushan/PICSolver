@@ -46,7 +46,7 @@ namespace PICSolver
             emitter = new Emitter2D(0, 0.04, 0, 0.06, particlesCount, 0, 0, -Constants.ChildLangmuirCurrent(0.1, u), step);
             mover = new Leapfrog();
             grid = new Grid2D();
-            grid.InitializeGrid(101, 101, 0, 0.1, 0, 0.1);
+            grid.InitializeGrid(201, 201, 0, 0.1, 0, 0.1);
             mesh = new Mesh2D();
             mesh.InitializeMesh(grid.N * grid.M);
             interpolator = new CloudInCellCurrentLinkage(particles, grid, mesh);
@@ -85,9 +85,9 @@ namespace PICSolver
             }
 
             while (particles.Count > 0) MoveParticles();
-            var w = 0.5;
+            var w = 0.3;
             
-            mesh.Density = MatrixExtensions.Sum(MatrixExtensions.Multiply(density, 1.0 - w), MatrixExtensions.Multiply(mesh.Density, w));
+            mesh.Density = Helpers.Sum(Helpers.Multiply(density, 1.0 - w), Helpers.Multiply(mesh.Density, w));
             density = mesh.Density.Clone() as double[];
 
             Monitor.EndIteration();
