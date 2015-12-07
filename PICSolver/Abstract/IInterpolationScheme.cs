@@ -2,7 +2,7 @@
 {
     public interface IInterpolationScheme
     {
-        void InterpolateToGrid();
+        void InterpolateDensity();
         void InterpolateForces();
     }
 }

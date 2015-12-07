@@ -7,5 +7,6 @@ namespace PICSolver.Abstract
         Particle[] Inject();
         double Length { get; }
         int ParticlesCount { get; }
+        double ParticleCharge { get; }
     }
 }

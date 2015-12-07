@@ -1,8 +1,8 @@
-﻿namespace PICSolver.Derivative
+﻿namespace PICSolver.ElectricField
 {
-    public class ElectricField
+    public class Gradient
     {
-        public static void EvaluateFlatten(double[] vector, double[] dx, double[] dy, int n, int m, double hx = 1.0, double hy = 1.0)
+        public static void Calculate(double[] vector, double[] dx, double[] dy, int n, int m, double hx = 1.0, double hy = 1.0)
         {
             for (var i = 0; i < n; i++)
             {

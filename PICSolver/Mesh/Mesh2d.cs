@@ -12,12 +12,17 @@ namespace PICSolver.Mesh
         public double[] Density { get; set; }
         public double[] Potential { get; set; }
 
+        private object[] DensityLock { get; set; }
+
         public void InitializeMesh(int cells)
         {
             count = cells;
             Density = new double[count];
             Ex = new double[count];
             Ey = new double[count];
+            DensityLock = new object[count];
+            for (var i = 0; i < count; i++)
+                DensityLock[i] = new object();
         }
 
         public double GetEx(int cellId)
@@ -30,9 +35,13 @@ namespace PICSolver.Mesh
             return Ey[cellId];
         }
 
-        public void AddDensity(int cell, double density)
+        public void AddDensity(int cell, double density, bool synchronized)
         {
-            Density[cell] += density;
+            if (synchronized)
+                lock (DensityLock[cell])
+                    Density[cell] += density;
+            else
+                Density[cell] += density;
         }
 
         public double GetDensity(int cellId)

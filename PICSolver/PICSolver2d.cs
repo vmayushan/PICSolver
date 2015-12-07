@@ -1,10 +1,13 @@
-﻿using PICSolver.Abstract;
-using PICSolver.Derivative;
+﻿using System;
+using System.Collections.Generic;
+using PICSolver.Abstract;
 using PICSolver.Domain;
 using PICSolver.Emitter;
 using PICSolver.Grid;
 using PICSolver.Interpolation;
+using PICSolver.ElectricField;
 using PICSolver.Mesh;
+using PICSolver.Monitor;
 using PICSolver.Mover;
 using PICSolver.Poisson;
 using PICSolver.Storage;
@@ -12,7 +15,7 @@ using PICSolver.Storage;
 namespace PICSolver
 {
     // ReSharper disable once InconsistentNaming
-    public class PICSolver2D
+    public class PICSolver2D : IPICSolver
     {
         private BoundaryConditions boundaryConditions;
         private IEmitter emitter;
@@ -25,13 +28,20 @@ namespace PICSolver
         private IFieldSolver poissonSolver;
         private double step;
         private double u;
+        private bool backscattering;
+        private double alfa;
+        private double beta;
 
         public PICMonitor Monitor { get; set; }
-        public void Prepare()
+        public List<Tuple<int, double, double>> Trajectories { get; set; }
+        public void Prepare(PICProject project)
         {
-            step = 1E-11;
-            u = 100000;
-            particles = new ParticleArrayStorage<Particle>(1000000);
+            backscattering = project.Backscattering;
+            alfa = project.BackscatteringAlfa;
+            beta = project.BackscatteringBeta;
+            step = project.Step;
+            u = project.Voltage;
+            particles = new ParticleArrayStorage<Particle>(100000);
             boundaryConditions = new BoundaryConditions
             {
                 Top = new BoundaryCondition { Value = x => 0, Type = BoundaryConditionType.Neumann },
@@ -40,20 +50,20 @@ namespace PICSolver
                 Right = new BoundaryCondition { Value = x => u, Type = BoundaryConditionType.Dirichlet }
             };
 
-            emitter = new Emitter2D(0, 0.04, 0, 0.06, 101, 0, 0, -Constants.ChildLangmuirCurrent(0.1, u), step);
+            emitter = new Emitter2D(0, project.EmitterBottom, 0, project.EmitterTop, project.ParticlesCount, 0, 0, -Constants.ChildLangmuirCurrent(project.Length, u), step);
             mover = new Leapfrog();
             grid = new Grid2D();
-            grid.InitializeGrid(101, 101, 0, 0.1, 0, 0.1);
+            grid.InitializeGrid(project.GridN, project.GridM, 0, project.Length, 0, project.Height);
             mesh = new Mesh2D();
             mesh.InitializeMesh(grid.N * grid.M);
-            interpolator = new CloudInCell(particles, grid, mesh);
+            interpolator = new CloudInCell(particles, grid, mesh, false);
             poissonSolver = new Poisson2DFdmSolver(grid, boundaryConditions);
-            poissonSolver.Matrix = poissonSolver.BuildMatrix();
+            poissonSolver.FdmMatrix = poissonSolver.BuildMatrix();
             h = step * Constants.LightVelocity;
-            Monitor = new PICMonitor(grid, mesh, particles);
+            Monitor = new PICMonitor(grid, mesh, particles,this);
         }
 
-        public void Step()
+        public double Step()
         {
             Monitor.BeginIteration();
             var injectedParticles = emitter.Inject();
@@ -67,15 +77,15 @@ namespace PICSolver
             }
 
             mesh.ResetDensity();
-            interpolator.InterpolateToGrid();
+            interpolator.InterpolateDensity();
 
             var vector = poissonSolver.BuildVector(mesh);
             Monitor.BeginPoissonSolve();
-            mesh.Potential = poissonSolver.Solve(poissonSolver.Matrix, vector);
+            mesh.Potential = poissonSolver.Solve(poissonSolver.FdmMatrix, vector);
             Monitor.EndPoissonSolve();
 
 
-            ElectricField.EvaluateFlatten(mesh.Potential, mesh.Ex, mesh.Ey, grid.N, grid.M, grid.Hx, grid.Hy);
+            Gradient.Calculate(mesh.Potential, mesh.Ex, mesh.Ey, grid.N, grid.M, grid.Hx, grid.Hy);
 
             particles.ResetForces();
             interpolator.InterpolateForces();
@@ -89,18 +99,29 @@ namespace PICSolver
             {
                 mover.Step(particles, index, h);
 
-                if (grid.IsOutOfGrid(particles.Get(Field.X, index), particles.Get(Field.Y, index)))
+                if (!backscattering && grid.IsOutOfGrid(particles.Get(Field.X, index), particles.Get(Field.Y, index)))
                 {
                     particles.RemoveAt(index);
                 }
                 else
                 {
+                    if (backscattering && grid.IsOutOfGrid(particles.Get(Field.X, index), particles.Get(Field.Y, index)))
+                    {
+                        particles.Set(Field.X, index, particles.Get(Field.PrevX, index));
+                        particles.Set(Field.Y, index, particles.Get(Field.PrevY, index));
+                        particles.Multiply(Field.Px, index, -beta);
+                        particles.Multiply(Field.Py, index, -beta);
+                        particles.Multiply(Field.Q, index, alfa);
+                        if (particles.Get(Field.Q, index) > 0.05 * emitter.ParticleCharge) particles.RemoveAt(index);
+                    }
+
                     var cell = grid.FindCell(particles.Get(Field.X, index), particles.Get(Field.Y, index));
                     particles.SetParticleCell(index, cell);
                 }
             }
 
             Monitor.EndIteration();
+            return double.NaN;
         }
     }
 }

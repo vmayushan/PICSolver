@@ -23,7 +23,6 @@ namespace PICSolver.Mover
             var y = particles.Get(Field.Y, index);
             particles.Set(Field.PrevX, index, x);
             particles.Set(Field.PrevY, index, y);
-
             x += h * Constants.Beta(px);
             y += h * Constants.Beta(py);
             particles.Update(index, x, y, px, py);

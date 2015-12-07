@@ -34,8 +34,8 @@ namespace PICSolver.Emitter
             var betaY = Constants.LorentzFactorToBeta(gammaY);
             py = Constants.Momentum(betaY);
 
-            dx = (toX - fromX) / (ParticlesCount - 1.0);
-            dy = (toY - fromY) / (ParticlesCount - 1.0);
+            dx = (toX - fromX) / (ParticlesCount);
+            dy = (toY - fromY) / (ParticlesCount);
 
             this.currentDensity = currentDensity;
             this.step = step;
@@ -43,16 +43,18 @@ namespace PICSolver.Emitter
         }
 
         public int ParticlesCount { get; }
+        public double ParticleCharge { get; private set; }
 
         public double Length => Math.Sqrt(Math.Pow((toX - fromX), 2) + Math.Pow((toY - fromY), 2));
 
         public Particle[] Inject()
         {
+            ParticleCharge = currentDensity * Length * step / ParticlesCount;
             for (var i = 0; i < ParticlesCount; i++)
             {
-                var x = fromX + i * dx;
-                var y = fromY + i * dy;
-                var q = currentDensity * Length * step / ParticlesCount;
+                var x = fromX + (i + 0.5) * dx;
+                var y = fromY + (i + 0.5) * dy;
+                var q = ParticleCharge;
                 particles[i] = new Particle(x, y, px, py, 0, 0, q);
             }
 

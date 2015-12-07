@@ -10,7 +10,7 @@
         double GetEx(int cellId);
         double GetEy(int cellId);
         void ResetDensity();
-        void AddDensity(int cell, double density);
+        void AddDensity(int cell, double density, bool synchronized);
         double GetDensity(int cellId);
     }
 }

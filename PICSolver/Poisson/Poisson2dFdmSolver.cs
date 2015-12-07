@@ -25,7 +25,7 @@ namespace PICSolver.Poisson
         private readonly double[] x;
         private readonly double[] y;
         private Vector<double> result;
-        public Matrix<double> Matrix { get; set; }
+        public Matrix<double> FdmMatrix { get; set; }
 
         public Poisson2DFdmSolver(IGrid2D grid, BoundaryConditions boundary)
         {
@@ -145,7 +145,7 @@ namespace PICSolver.Poisson
             monitor.Reset();
             for (int i = 0; ; i++)
             {
-                if(i == 2) throw new ApplicationException();
+                if (i == 2) throw new ApplicationException();
                 if (TrySolve(matrix, right)) break;
             }
 
@@ -163,9 +163,12 @@ namespace PICSolver.Poisson
         private void InitializeSolver()
         {
             result = Vector<double>.Build.Dense(n * m);
-            Control.LinearAlgebraProvider = new OpenBlasLinearAlgebraProvider();
-            var iterationCountStopCriterion = new IterationCountStopCriterion<double>(100);
-            var residualStopCriterion = new ResidualStopCriterion<double>(1e-9);
+              Control.LinearAlgebraProvider = new OpenBlasLinearAlgebraProvider();
+            //Control.UseNativeMKL();
+            //Control.LinearAlgebraProvider = new MklLinearAlgebraProvider();
+            //Control.UseManaged();
+            var iterationCountStopCriterion = new IterationCountStopCriterion<double>(150);
+            var residualStopCriterion = new ResidualStopCriterion<double>(1e-7);
             monitor = new Iterator<double>(iterationCountStopCriterion, residualStopCriterion);
             solver = new BiCgStab();
             preconditioner = new MILU0Preconditioner();
@@ -185,6 +188,6 @@ namespace PICSolver.Poisson
             }
         }
 
-       
+
     }
 }

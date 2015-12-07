@@ -91,18 +91,6 @@ namespace PICSolver.Storage
         }
 
         /// <summary>
-        ///     Add force to particle.
-        /// </summary>
-        /// <param name="index">The index of the element.</param>
-        /// <param name="forceX">Force on particle.</param>
-        /// <param name="forceY">Force on particle.</param>
-        public void AddForce(int index, double forceX, double forceY)
-        {
-            data[width * index + 5] += forceX;
-            data[width * index + 6] += forceY;
-        }
-
-        /// <summary>
         ///     Get particle property value
         /// </summary>
         /// <param name="field">Property name</param>
@@ -124,6 +112,26 @@ namespace PICSolver.Storage
             data[width * index + (int)field] = value;
         }
 
+        /// <summary>
+        /// Increment particle property value
+        /// </summary>
+        /// <param name="field">Property name</param>
+        /// <param name="index">Particle id</param>
+        /// <param name="value">Property value</param>
+        public void Increment(Field field, int index, double value)
+        {
+            data[width * index + (int)field] += value;
+        }
+        /// <summary>
+        /// Myltiply particle property value
+        /// </summary>
+        /// <param name="field">Property name</param>
+        /// <param name="index">Particle id</param>
+        /// <param name="value">Property value</param>
+        public void Multiply(Field field, int index, double value)
+        {
+            data[width * index + (int)field] *= value;
+        }
         /// <summary>
         /// </summary>
         /// <param name="index">Particle id</param>
@@ -150,6 +158,7 @@ namespace PICSolver.Storage
         {
             if (index >= capacity) throw new ArgumentOutOfRangeException(nameof(index));
             data[width * index + 4] = 0;
+            lock (deleted)
             deleted.Add(index);
         }
 

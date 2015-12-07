@@ -15,9 +15,10 @@ namespace PICSolver.Abstract
         void ResetForces();
         void SetParticleCell(int index, int cellId);
         int GetParticleCell(int index);
-        void AddForce(int index, double forceX, double forceY);
         double Get(Field field, int index);
         void Set(Field field, int index, double value);
+        void Increment(Field field, int index, double value);
+        void Multiply(Field field, int index, double value);
         void Update(int index, double x, double y, double px, double py);
         IEnumerable<int> EnumerateIndexes();
     }
