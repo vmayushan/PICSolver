@@ -26,6 +26,7 @@ namespace PICSolver.Monitor
             this.solver = solver;
             GridX = grid.X;
             GridY = grid.Y;
+            Status = PICStatus.Created;
         }
 
         public double[,] Rho { get; private set; }
@@ -38,6 +39,7 @@ namespace PICSolver.Monitor
         public int ParticlesCount => particles.Count;
         public long Time { get; set; }
         public long TimePoisson { get; set; }
+        public PICStatus Status { get; set; }
         public ILookup<int,Tuple<int,double,double>> Trajectories { get; set; }
 
 

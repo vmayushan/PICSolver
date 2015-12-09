@@ -33,7 +33,7 @@ namespace PICSolver
         private double u;
         private double[] density;
         private double w;
-
+        private int trajectoryInterval;
 
         private bool backscattering;
         private double alfa;
@@ -41,6 +41,7 @@ namespace PICSolver
 
         public List<Tuple<int, double, double>> Trajectories { get; set; }
         public PICMonitor Monitor { get; set; }
+
         public void Prepare(PICProject project)
         {
             w = project.Relaxation;
@@ -59,7 +60,7 @@ namespace PICSolver
                 Right = new BoundaryCondition { Value = x => u, Type = BoundaryConditionType.Dirichlet }
             };
 
-            emitter = new Emitter2D(0, project.EmitterBottom, 0, project.EmitterTop, project.ParticlesCount, 0, 0, -Constants.ChildLangmuirCurrent(project.Length, u), step);
+            emitter = new Emitter2D(0, project.EmitterBottom, 0, project.EmitterTop, project.ParticlesCount, 0, 0, -0.5 * Constants.ChildLangmuirCurrent(project.Length, u), step);
             mover = new Leapfrog();
             grid = new Grid2D();
             grid.InitializeGrid(project.GridN, project.GridM, 0, project.Length, 0, project.Height);
@@ -69,7 +70,7 @@ namespace PICSolver
             poissonSolver = new Poisson2DFdmSolver(grid, boundaryConditions);
             poissonSolver.FdmMatrix = poissonSolver.BuildMatrix();
             h = step * Constants.LightVelocity;
-            Monitor = new PICMonitor(grid, mesh, particles,this);
+            Monitor = new PICMonitor(grid, mesh, particles, this);
             density = new double[grid.N * grid.M];
             Trajectories = new List<Tuple<int, double, double>>(particles.Count * 1000);
         }
@@ -121,7 +122,9 @@ namespace PICSolver
             foreach (var index in particles.EnumerateIndexes())
             {
                 mover.Step(particles, index, h);
-                Trajectories.Add(new Tuple<int, double, double>(index, particles.Get(Field.X, index), particles.Get(Field.Y, index)));
+                if (trajectoryInterval == 0) Trajectories.Add(new Tuple<int, double, double>(index, particles.Get(Field.X, index), particles.Get(Field.Y, index)));
+
+
                 if (!backscattering && grid.IsOutOfGrid(particles.Get(Field.X, index), particles.Get(Field.Y, index)))
                 {
                     particles.RemoveAt(index);
@@ -133,7 +136,7 @@ namespace PICSolver
                         particles.Set(Field.X, index, particles.Get(Field.PrevX, index));
                         particles.Set(Field.Y, index, particles.Get(Field.PrevY, index));
                         particles.Multiply(Field.Px, index, -beta);
-                        particles.Multiply(Field.Py, index, beta); //todo
+                        particles.Multiply(Field.Py, index, beta);
                         particles.Multiply(Field.Q, index, alfa);
                         if (particles.Get(Field.Q, index) > 0.05 * emitter.ParticleCharge) particles.RemoveAt(index);
                     }
@@ -141,7 +144,11 @@ namespace PICSolver
                     var cell = grid.FindCell(particles.Get(Field.X, index), particles.Get(Field.Y, index));
                     particles.SetParticleCell(index, cell);
                 }
+
             }
+            if (trajectoryInterval == 20) trajectoryInterval = 0; //todo вынести в проект
+            else trajectoryInterval++;
+
         }
     }
 }

@@ -75,6 +75,8 @@
         <KeyBinding Key="W" Modifiers="Control" Command="{Binding CloseWorkspaceCommand}" />
         <KeyBinding Key="Enter" Modifiers="Alt" Command="{Binding ProjectPropertiesCommand}" />
         <KeyBinding Key="F5" Command="{Binding RunCommand}" />
+        <KeyBinding Key="F5"  Modifiers="Shift" Command="{Binding AbortCommand}" />
+        <KeyBinding Key="F10" Command="{Binding StepCommand}" />
     </Window.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
@@ -99,6 +101,8 @@
             </MenuItem>
             <MenuItem Header="Simulation">
                 <MenuItem Command="{Binding RunCommand}" Header="_Run" InputGestureText="F5" />
+                <MenuItem Command="{Binding AbortCommand}" Header="_Abort" InputGestureText="Shift + F5" />
+                <MenuItem Command="{Binding StepCommand}" Header="_Step" InputGestureText="F10" />
             </MenuItem>
             <MenuItem Header="Tab">
                 <MenuItem Command="{Binding ProjectPropertiesCommand}" Header="_Properties" InputGestureText="Alt + Enter" />
@@ -157,8 +161,8 @@
 
 
         <StatusBar Grid.Row="2">
-            <StatusBarItem>Diode Simulation Tool</StatusBarItem>
-            <StatusBarItem>Another Text:</StatusBarItem>
+            <StatusBarItem>Epsilon: </StatusBarItem>
+            <StatusBarItem Content="{Binding Epsilon}" />
             <StatusBarItem Content="{Binding ElementName=MainTabControl, Path=SelectedItem.Header, Mode=OneWay}" />
         </StatusBar>
 

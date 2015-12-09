@@ -34,6 +34,7 @@ namespace PICSolver
 
         public PICMonitor Monitor { get; set; }
         public List<Tuple<int, double, double>> Trajectories { get; set; }
+
         public void Prepare(PICProject project)
         {
             backscattering = project.Backscattering;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -12,12 +13,15 @@ using MahApps.Metro;
 using MahApps.Metro.Controls.Dialogs;
 using OxyPlot;
 using OxyPlot.Series;
+using OxyPlot.Axes;
+using OxyPlot.Wpf;
 using PICSolver;
 using PICSolver.Abstract;
 using PICSolver.Monitor;
 using SimulationTool.Commands;
 using SimulationTool.Helpers;
 using SimulationTool.View;
+using LineSeries = OxyPlot.Series.LineSeries;
 using PlotType = PICSolver.Monitor.PlotType;
 
 namespace SimulationTool.ViewModel
@@ -33,6 +37,9 @@ namespace SimulationTool.ViewModel
         private readonly IDialogCoordinator _dialogCoordinator;
         public List<AccentColorMenuData> AccentColors { get; set; }
         public List<AppThemeMenuData> AppThemes { get; set; }
+        private PICProject Project { get; set; }
+        private IPICSolver Solver { get; set; }
+        private CancellationTokenSource TokenSource { get; set; }
         #region Constructor
 
         public MainViewModel(IDialogCoordinator dialogCoordinator)
@@ -43,45 +50,73 @@ namespace SimulationTool.ViewModel
 
             // create accent color menu items for the demo
             this.AccentColors = ThemeManager.Accents
-                                            .Select(a => new AccentColorMenuData() { Name = a.Name, ColorBrush = a.Resources["AccentColorBrush"] as Brush })
+                                            .Select(a => new AccentColorMenuData() { Name = a.Name, ColorBrush = a.Resources["AccentColorBrush"] as Brush, Model = this})
                                             .ToList();
 
             // create metro theme color menu items for the demo
             this.AppThemes = ThemeManager.AppThemes
-                                           .Select(a => new AppThemeMenuData() { Name = a.Name, BorderColorBrush = a.Resources["BlackColorBrush"] as Brush, ColorBrush = a.Resources["WhiteColorBrush"] as Brush })
+                                           .Select(a => new AppThemeMenuData() { Name = a.Name, BorderColorBrush = a.Resources["BlackColorBrush"] as Brush, ColorBrush = a.Resources["WhiteColorBrush"] as Brush, Model = this })
                                            .ToList();
+        }
+
+        private void LoadProject()
+        {
+            Project = new PICProject()
+            {
+                Backscattering = true,
+                BackscatteringAlfa = 0.5,
+                BackscatteringBeta = 0.9,
+                GridM = 101,
+                GridN = 101,
+                Method = PICMethod.Iterative,
+                ParticlesCount = 100,
+                Step = 1E-12,
+                Voltage = 100000,
+                Height = 0.5,
+                Length = 0.1,
+                Relaxation = 0.9,
+                EmitterTop = 0.3,
+                EmitterBottom = 0.2
+            };
+            Solver = (Project.Method == PICMethod.ParticleInCell) ? (IPICSolver)new PICSolver2D() : new IterativePICSolver2D();
+            Solver.Prepare(Project);
         }
 
         private void Run()
         {
+            TokenSource?.Dispose();
+            TokenSource = new CancellationTokenSource();
             Task.Run(() =>
             {
-                var project = new PICProject()
-                {
-                    Backscattering = true,
-                    BackscatteringAlfa = 0.5,
-                    BackscatteringBeta = 0.5,
-                    GridM = 101,
-                    GridN = 101,
-                    Method = PICMethod.Iterative,
-                    ParticlesCount = 100,
-                    Step = 2E-12,
-                    Voltage = 100000,
-                    Height = 0.1,
-                    Length = 0.1,
-                    Relaxation = 0.7,
-                    EmitterTop = 0.09,
-                    EmitterBottom = 0.01
-                };
-                var solver = (project.Method == PICMethod.ParticleInCell) ? (IPICSolver)new PICSolver2D() : new IterativePICSolver2D();
-                solver.Prepare(project);
+                if (Project == null) LoadProject();
+                Solver.Monitor.Status = PICStatus.Computing;
                 for (var i = 0; i < int.MaxValue; i++)
                 {
-                    solver.Step();
-                    Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() => { UpdatePlots(solver.Monitor); }));
+                    if (TokenSource.IsCancellationRequested) TokenSource.Token.ThrowIfCancellationRequested();
+                    Epsilon = Solver.Step();
+                    Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() => { UpdatePlots(Solver.Monitor); }));
                 }
-            });
+            }, TokenSource.Token).ContinueWith((prevTask) => { Solver.Monitor.Status = PICStatus.Pause; });
         }
+
+        private void Step()
+        {
+            Task.Run(() =>
+            {
+                if (Project == null) LoadProject();
+                Solver.Monitor.Status = PICStatus.Computing;
+                Epsilon = Solver.Step();
+                Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Render,
+                    new Action(() => { UpdatePlots(Solver.Monitor); }));
+            }).ContinueWith((prevTask) => { Solver.Monitor.Status = PICStatus.Pause; });
+
+        }
+
+        private void Abort()
+        {
+            TokenSource.Cancel();
+        }
+
 
         #endregion
 
@@ -111,7 +146,13 @@ namespace SimulationTool.ViewModel
         public ICommand ExitCommand => _exitCommand ?? (_exitCommand = new DelegateCommand(() => Application.Current.Shutdown()));
 
         private DelegateCommand _runCommand;
-        public ICommand RunCommand => _runCommand ?? (_runCommand = new DelegateCommand(this.Run));
+        public ICommand RunCommand => _runCommand ?? (_runCommand = new DelegateCommand(this.Run, () => Solver?.Monitor?.Status != PICStatus.Computing));
+
+        private DelegateCommand _abortCommand;
+        public ICommand AbortCommand => _abortCommand ?? (_abortCommand = new DelegateCommand(this.Abort, () => Solver?.Monitor?.Status == PICStatus.Computing));
+
+        private DelegateCommand _stepCommand;
+        public ICommand StepCommand => _stepCommand ?? (_stepCommand = new DelegateCommand(this.Step, () => Solver?.Monitor?.Status != PICStatus.Computing));
 
         private DelegateCommand _newWorkspaceCommand;
         public ICommand NewWorkspaceCommand => _newWorkspaceCommand ?? (_newWorkspaceCommand = new DelegateCommand(this.RunCustomFromVm));
@@ -119,7 +160,7 @@ namespace SimulationTool.ViewModel
 
 
         private DelegateCommand _projectPropertiesCommand;
-        public ICommand ProjectPropertiesCommand => _projectPropertiesCommand ?? (_projectPropertiesCommand = new DelegateCommand(NewProjectWorkspace, () => !Workspaces.Any(x => x is PreferencesViewModel)));
+        public ICommand ProjectPropertiesCommand => _projectPropertiesCommand ?? (_projectPropertiesCommand = new DelegateCommand(NewProjectWorkspace, () => Workspaces == null || !Workspaces.Any(x => x is PreferencesViewModel)));
 
         private void NewProjectWorkspace()
         {
@@ -129,7 +170,7 @@ namespace SimulationTool.ViewModel
         }
 
         private DelegateCommand _closeWorkspaceCommand;
-        public ICommand CloseWorkspaceCommand => _closeWorkspaceCommand ?? (_closeWorkspaceCommand = new DelegateCommand(CloseWorkspace, () => Workspaces.Count > 0));
+        public ICommand CloseWorkspaceCommand => _closeWorkspaceCommand ?? (_closeWorkspaceCommand = new DelegateCommand(CloseWorkspace, () => Workspaces?.Count > 0));
 
         private void CloseWorkspace()
         {
@@ -168,6 +209,17 @@ namespace SimulationTool.ViewModel
             {
                 _selectedIndex = value;
                 OnPropertyChanged("SelectedIndex");
+            }
+        }
+
+        private double _epsilon = 0;
+        public double Epsilon
+        {
+            get { return _epsilon; }
+            set
+            {
+                _epsilon = value;
+                OnPropertyChanged("Epsilon");
             }
         }
 
@@ -247,6 +299,16 @@ namespace SimulationTool.ViewModel
                 }
             });
         }
+
+        public void UpdateTheme()
+        {
+            foreach (var model in Workspaces.Where(p => p.GetType() == typeof (PlotViewModel)).Cast<PlotViewModel>())
+            {
+                var backgroundBrush = (Brush)ThemeManager.DetectAppStyle(Application.Current).Item1.Resources["WindowBackgroundBrush"];
+                model.PlotModel.Background = backgroundBrush.ToOxyColor();
+                model.PlotModel.InvalidatePlot(true);
+            }
+        }
     }
 
     public class AccentColorMenuData
@@ -254,6 +316,7 @@ namespace SimulationTool.ViewModel
         public string Name { get; set; }
         public Brush BorderColorBrush { get; set; }
         public Brush ColorBrush { get; set; }
+        public MainViewModel Model { get; set; }
 
         private ICommand changeAccentCommand;
 
@@ -264,6 +327,7 @@ namespace SimulationTool.ViewModel
             var theme = ThemeManager.DetectAppStyle(Application.Current);
             var accent = ThemeManager.GetAccent(this.Name);
             ThemeManager.ChangeAppStyle(Application.Current, accent, theme.Item1);
+            Model.UpdateTheme();
         }
     }
 
@@ -274,6 +338,7 @@ namespace SimulationTool.ViewModel
             var theme = ThemeManager.DetectAppStyle(Application.Current);
             var appTheme = ThemeManager.GetAppTheme(this.Name);
             ThemeManager.ChangeAppStyle(Application.Current, theme.Item2, appTheme);
+            Model.UpdateTheme();
         }
     }
 }

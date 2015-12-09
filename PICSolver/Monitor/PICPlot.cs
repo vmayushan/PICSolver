@@ -33,4 +33,11 @@ namespace PICSolver.Monitor
         Horizontal,
         Vertical
     }
+
+    public enum PICStatus
+    {
+        Created,
+        Computing,
+        Pause,
+    }
 }

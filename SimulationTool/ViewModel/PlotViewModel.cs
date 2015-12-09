@@ -1,8 +1,14 @@
 ﻿using System;
+using System.Windows;
+using System.Windows.Media;
+using MahApps.Metro;
 using OxyPlot;
 using OxyPlot.Axes;
-using OxyPlot.Series;
+using OxyPlot.Wpf;
 using PICSolver.Monitor;
+using HeatMapSeries = OxyPlot.Series.HeatMapSeries;
+using LinearAxis = OxyPlot.Axes.LinearAxis;
+using LinearColorAxis = OxyPlot.Axes.LinearColorAxis;
 using PlotType = PICSolver.Monitor.PlotType;
 
 namespace SimulationTool.ViewModel
@@ -12,11 +18,13 @@ namespace SimulationTool.ViewModel
         public PlotViewModel(PICPlot plot)
         {
             this.PICPlot = plot;
+            this.PlotModel = new PlotModel { };
+            var backgroundBrush = (Brush)ThemeManager.DetectAppStyle(Application.Current).Item1.Resources["WindowBackgroundBrush"];
+            PlotModel.Background = backgroundBrush.ToOxyColor();
 
             switch (plot.PlotType)
             {
                 case PlotType.Heatmap:
-                    PlotModel = new PlotModel();
                     PlotModel.Axes.Add(new LinearColorAxis
                     {
                         HighColor = OxyColors.Gray,
@@ -35,12 +43,11 @@ namespace SimulationTool.ViewModel
                     PlotModel.Series.Add(HeatMapSeries);
                     break;
                 case PlotType.Line:
-                    this.PlotModel = new PlotModel { };
+
                     PlotModel.InvalidatePlot(true);
                     OnPropertyChanged("PlotModel");
                     break;
                 case PlotType.Trajectories:
-                    this.PlotModel = new PlotModel { };
                     PlotModel.InvalidatePlot(true);
                     OnPropertyChanged("PlotModel");
                     break;

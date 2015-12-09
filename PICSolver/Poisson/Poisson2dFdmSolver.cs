@@ -167,7 +167,7 @@ namespace PICSolver.Poisson
             //Control.UseNativeMKL();
             //Control.LinearAlgebraProvider = new MklLinearAlgebraProvider();
             //Control.UseManaged();
-            var iterationCountStopCriterion = new IterationCountStopCriterion<double>(150);
+            var iterationCountStopCriterion = new IterationCountStopCriterion<double>(1000);
             var residualStopCriterion = new ResidualStopCriterion<double>(1e-7);
             monitor = new Iterator<double>(iterationCountStopCriterion, residualStopCriterion);
             solver = new BiCgStab();
